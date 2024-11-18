@@ -1,0 +1,21 @@
+name: WelcomeMat
+version: '1.0.5'
+main: xyz.coffeeisle.welcomemat.WelcomeMat
+api-version: '1.13'
+authors: [angeldev0]
+description: A friendly way to roll out the welcome mat for players.
+commands:
+  welcomemat:
+    description: Main command for WelcomeMat plugin
+    usage: /<command> [reload|help|sound]
+    aliases: [wm]
+permissions:
+  welcomemat.reload:
+    description: Allows reloading the plugin configuration
+    default: op
+  welcomemat.bypass:
+    description: Bypasses welcome messages
+    default: false
+  welcomemat.sound.toggle:
+    description: Allows toggling join/leave sounds
+    default: true 

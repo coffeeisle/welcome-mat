@@ -1,0 +1,74 @@
+# WelcomeMat Configuration
+
+# Available sounds:
+# 1.8:
+# - LEVEL_UP (Join)
+# - IRONGOLEM_DEATH (Leave)
+# - NOTE_PLING
+# - ORB_PICKUP
+# - ANVIL_LAND
+# - HURT_FLESH
+# - VILLAGER_YES
+# - VILLAGER_NO
+# - NOTE_PIANO
+#
+# 1.9+:
+# - ENTITY_PLAYER_LEVELUP
+# - ENTITY_IRON_GOLEM_DEATH
+# - BLOCK_NOTE_BLOCK_PLING
+# - ENTITY_EXPERIENCE_ORB_PICKUP
+# - BLOCK_ANVIL_LAND
+# - ENTITY_PLAYER_HURT
+# - ENTITY_VILLAGER_YES
+# - ENTITY_VILLAGER_NO
+# - BLOCK_NOTE_BLOCK_CHIME
+# - BLOCK_NOTE_BLOCK_BELL
+
+### Friendly welcome
+# sounds:
+#   join:
+#     sound: ENTITY_PLAYER_LEVELUP
+#     volume: 1.0
+#     pitch: 1.2
+#   leave:
+#     sound: BLOCK_NOTE_BLOCK_BELL
+#     volume: 0.5
+#     pitch: 0.8
+
+### Professional server
+# sounds:
+#   join:
+#     sound: BLOCK_NOTE_BLOCK_PLING
+#     volume: 0.8
+#     pitch: 1.5
+#   leave:
+#     sound: BLOCK_NOTE_BLOCK_BASS
+#     volume: 0.6
+#     pitch: 0.8
+
+features:
+  join-message: true
+  leave-message: true
+  join-title: true
+  join-sound: true
+  leave-sound: true
+  other-players-sounds: true
+
+messages:
+  join: "&e%player% &ajust joined the server!"
+  leave: "&e%player% &chas left the server!"
+
+titles:
+  join:
+    title: "&6Welcome!"
+    subtitle: "&eEnjoy your stay!"
+
+sounds:
+  join:
+    sound: ENTITY_PLAYER_LEVELUP  # Default: XP pling sound
+    volume: 1.0
+    pitch: 1.0
+  leave:
+    sound: ENTITY_IRON_GOLEM_DEATH  # Default: Iron Golem death sound
+    volume: 0.5
+    pitch: 1.0
