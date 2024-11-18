@@ -1,0 +1,153 @@
+# Available languages: english, spanish
+selected-language: "english"
+
+languages:
+  english:
+    name: "English"
+    messages:
+      # Command messages
+      reload:
+        success: "&aWelcomeMat configuration reloaded!"
+        no-permission: "&cYou don't have permission to reload the configuration!"
+      
+      sound:
+        enabled: "&aJoin/Leave sounds enabled!"
+        disabled: "&eJoin/Leave sounds disabled!"
+        no-permission: "&cYou don't have permission to toggle sounds!"
+        players-only: "&cThis command can only be used by players!"
+      
+      pack:
+        current: "&6Current message pack: &e%pack%"
+        available: "&6Available packs: &e%packs%"
+        changed: "&aMessage pack changed to: &e%pack%"
+        invalid: "&cInvalid message pack! Available: %packs%"
+        no-permission: "&cYou don't have permission to change message packs!"
+      
+      config:
+        help_header: "&6══ WelcomeMat Config Help ══"
+        help_set: "&e➤ /wm config set <path> <value> &f- Set a config value"
+        help_get: "&e➤ /wm config get <path> &f- Get a config value"
+        help_list: "&e➤ /wm config list [path] &f- List config keys"
+        common_paths: "&7Common paths:"
+        path_sound: "&7• sounds.join.sound"
+        path_volume: "&7• sounds.join.volume"
+        path_leave: "&7• sounds.leave.sound"
+        path_messages: "&7• messages.style"
+        no_permission: "&cYou don't have permission to modify the configuration!"
+        invalid_sound: "&cInvalid sound: %value%"
+        available_sounds: "&7Available sounds:"
+        sound_previewed: "&a(Sound previewed!)"
+        value_set: "&aSet &e%path% &ato: &e%value%"
+        value_get: "&6%path%: &e%value%"
+        invalid_number: "&cValue must be a number!"
+        number_range: "&cValue must be between 0 and 2!"
+        usage: "&cUsage: /wm config set <path> <value>"
+      
+      language:
+        current: "&6Current language: &e%language%"
+        available: "&6Available languages: &e%languages%"
+        changed: "&aLanguage changed to: &e%language%"
+        invalid: "&cInvalid language! Available: %languages%"
+        no_permission: "&cYou don't have permission to change the language!"
+      
+      help:
+        header: "&6=== WelcomeMat Help ==="
+        reload: "&e/welcomemat reload &f- Reload the configuration"
+        sound: "&e/welcomemat sound &f- Toggle join/leave sounds"
+        pack: "&e/welcomemat pack [name] &f- Change message pack"
+        config: "&e/welcomemat config &f- Manage configuration"
+        language: "&e/welcomemat language &f- Manage language"
+        help: "&e/welcomemat help &f- Show this help message"
+      
+      errors:
+        players_only: "&cThis command can only be used by players!"
+        no_permission: "&cYou don't have permission to use this command!"
+        unknown_command: "&cUnknown command. Use /wm help for help."
+        database_error: "&cDatabase error: %error%"
+      
+      # Event messages
+      join:
+        default: "&e%player% &ajust joined the server!"
+        title: "&6Welcome!"
+        subtitle: "&eEnjoy your stay!"
+        sound_error: "Failed to play join sound: %error%"
+      
+      leave:
+        default: "&e%player% &chas left the server!"
+        sound_error: "Failed to play leave sound: %error%"
+
+  spanish:
+    name: "Español"
+    messages:
+      # Command messages
+      reload:
+        success: "&a¡Configuración de WelcomeMat recargada!"
+        no-permission: "&c¡No tienes permiso para recargar la configuración!"
+      
+      sound:
+        enabled: "&a¡Sonidos de entrada/salida activados!"
+        disabled: "&e¡Sonidos de entrada/salida desactivados!"
+        no-permission: "&c¡No tienes permiso para cambiar los sonidos!"
+        players-only: "&c¡Este comando solo puede ser usado por jugadores!"
+      
+      pack:
+        current: "&6Paquete de mensajes actual: &e%pack%"
+        available: "&6Paquetes disponibles: &e%packs%"
+        changed: "&aPaquete de mensajes cambiado a: &e%pack%"
+        invalid: "&c¡Paquete inválido! Disponibles: %packs%"
+        no-permission: "&c¡No tienes permiso para cambiar los paquetes de mensajes!"
+      
+      config:
+        help_header: "&6══ Ayuda de Configuración ══"
+        help_set: "&e➤ /wm config set <ruta> <valor> &f- Establecer un valor"
+        help_get: "&e➤ /wm config get <ruta> &f- Obtener un valor"
+        help_list: "&e➤ /wm config list [ruta] &f- Listar configuraciones"
+        common_paths: "&7Rutas comunes:"
+        path_sound: "&7• sounds.join.sound"
+        path_volume: "&7• sounds.join.volume"
+        path_leave: "&7• sounds.leave.sound"
+        path_messages: "&7• messages.style"
+        no_permission: "&c¡No tienes permiso para modificar la configuración!"
+        invalid_sound: "&cSonido inválido: %value%"
+        available_sounds: "&7Sonidos disponibles:"
+        sound_previewed: "&a(¡Sonido reproducido!)"
+        value_set: "&aEstablecido &e%path% &aa: &e%value%"
+        value_get: "&6%path%: &e%value%"
+        invalid_number: "&c¡El valor debe ser un número!"
+        number_range: "&c¡El valor debe estar entre 0 y 2!"
+        usage: "&cUso: /wm config set <ruta> <valor>"
+      
+      language:
+        current: "&6Idioma actual: &e%language%"
+        available: "&6Idiomas disponibles: &e%languages%"
+        changed: "&aIdioma cambiado a: &e%language%"
+        invalid: "&c¡Idioma inválido! Disponibles: %languages%"
+        no_permission: "&c¡No tienes permiso para cambiar el idioma!"
+      
+      help:
+        header: "&6=== Ayuda de WelcomeMat ==="
+        reload: "&e/welcomemat reload &f- Recargar la configuración"
+        sound: "&e/welcomemat sound &f- Alternar sonidos"
+        pack: "&e/welcomemat pack [nombre] &f- Cambiar paquete de mensajes"
+        config: "&e/welcomemat config &f- Gestionar configuración"
+        language: "&e/welcomemat language &f- Gestionar idioma"
+        help: "&e/welcomemat help &f- Mostrar este mensaje de ayuda"
+      
+      errors:
+        players_only: "&c¡Este comando solo puede ser usado por jugadores!"
+        no_permission: "&c¡No tienes permiso para usar este comando!"
+        unknown_command: "&cComando desconocido. Usa /wm help para ayuda."
+        database_error: "&cError de base de datos: %error%"
+      
+      # Event messages
+      join:
+        default: "&e%player% &a¡se ha unido al servidor!"
+        title: "&6¡Bienvenido!"
+        subtitle: "&e¡Disfruta tu estancia!"
+        sound_error: "Error al reproducir sonido de entrada: %error%"
+      
+      leave:
+        default: "&e%player% &c¡ha abandonado el servidor!"
+        sound_error: "Error al reproducir sonido de salida: %error%"
+
+# Add more languages following the same pattern 

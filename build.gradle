@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'xyz.coffeeisle'
-version = '1.0.5'
+version = '1.0.8'
 description = 'A friendly way to roll out the welcome mat for players.'
 
 repositories {
@@ -21,6 +21,7 @@ repositories {
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT'
+    implementation 'org.xerial:sqlite-jdbc:3.42.0.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_21

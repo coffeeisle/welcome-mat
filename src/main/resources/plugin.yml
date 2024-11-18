@@ -1,5 +1,5 @@
 name: WelcomeMat
-version: '1.0.5'
+version: '1.0.8'
 main: xyz.coffeeisle.welcomemat.WelcomeMat
 api-version: '1.13'
 authors: [angeldev0]
@@ -18,4 +18,13 @@ permissions:
     default: false
   welcomemat.sound.toggle:
     description: Allows toggling join/leave sounds
-    default: true 
+    default: true
+  welcomemat.pack:
+    description: Allows changing message packs
+    default: op
+  welcomemat.config:
+    description: Allows modifying plugin configuration
+    default: op
+  welcomemat.language:
+    description: Allows changing the plugin language
+    default: op

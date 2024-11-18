@@ -2,10 +2,15 @@ package xyz.coffeeisle.welcomemat;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import net.md_5.bungee.api.ChatColor;
+import xyz.coffeeisle.welcomemat.database.DatabaseManager;
+import xyz.coffeeisle.welcomemat.commands.WelcomeMatCommand;
+import xyz.coffeeisle.welcomemat.LanguageManager;
 
 public class WelcomeMat extends JavaPlugin {
     private static WelcomeMat instance;
     private ConfigManager configManager;
+    private DatabaseManager databaseManager;
+    private LanguageManager languageManager;
 
     // ANSI color codes for console
     private static final String GOLD = "\u001B[33m";
@@ -36,6 +41,17 @@ public class WelcomeMat extends JavaPlugin {
         saveDefaultConfig();
         configManager = new ConfigManager(this);
         
+        // Initialize database
+        databaseManager = new DatabaseManager(this);
+        
+        // Initialize language manager
+        languageManager = new LanguageManager(this);
+        
+        // Verify database connection
+        if (!databaseManager.isDatabaseConnected()) {
+            getLogger().warning("Database connection failed - using config fallback for sound preferences");
+        }
+        
         // Register events
         getServer().getPluginManager().registerEvents(new PlayerEventListener(this), this);
         
@@ -47,6 +63,9 @@ public class WelcomeMat extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (databaseManager != null) {
+            databaseManager.close();
+        }
         getLogger().info(RED + "WelcomeMat has been disabled!" + RESET);
         instance = null;
     }
@@ -57,5 +76,13 @@ public class WelcomeMat extends JavaPlugin {
 
     public ConfigManager getConfigManager() {
         return configManager;
+    }
+
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
+    }
+
+    public LanguageManager getLanguageManager() {
+        return languageManager;
     }
 } 

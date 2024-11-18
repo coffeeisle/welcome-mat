@@ -1,50 +1,15 @@
 # WelcomeMat Configuration
 
-# Available sounds:
-# 1.8:
-# - LEVEL_UP (Join)
-# - IRONGOLEM_DEATH (Leave)
-# - NOTE_PLING
-# - ORB_PICKUP
-# - ANVIL_LAND
-# - HURT_FLESH
-# - VILLAGER_YES
-# - VILLAGER_NO
-# - NOTE_PIANO
-#
-# 1.9+:
-# - ENTITY_PLAYER_LEVELUP
-# - ENTITY_IRON_GOLEM_DEATH
+# Available sounds (1.13+):
 # - BLOCK_NOTE_BLOCK_PLING
-# - ENTITY_EXPERIENCE_ORB_PICKUP
-# - BLOCK_ANVIL_LAND
-# - ENTITY_PLAYER_HURT
-# - ENTITY_VILLAGER_YES
-# - ENTITY_VILLAGER_NO
 # - BLOCK_NOTE_BLOCK_CHIME
 # - BLOCK_NOTE_BLOCK_BELL
-
-### Friendly welcome
-# sounds:
-#   join:
-#     sound: ENTITY_PLAYER_LEVELUP
-#     volume: 1.0
-#     pitch: 1.2
-#   leave:
-#     sound: BLOCK_NOTE_BLOCK_BELL
-#     volume: 0.5
-#     pitch: 0.8
-
-### Professional server
-# sounds:
-#   join:
-#     sound: BLOCK_NOTE_BLOCK_PLING
-#     volume: 0.8
-#     pitch: 1.5
-#   leave:
-#     sound: BLOCK_NOTE_BLOCK_BASS
-#     volume: 0.6
-#     pitch: 0.8
+# - BLOCK_NOTE_BLOCK_BASS
+# - ENTITY_PLAYER_LEVELUP
+# - ENTITY_EXPERIENCE_ORB_PICKUP
+# - BLOCK_ANVIL_LAND
+# - ENTITY_VILLAGER_YES
+# - ENTITY_VILLAGER_NO
 
 features:
   join-message: true
@@ -65,10 +30,72 @@ titles:
 
 sounds:
   join:
-    sound: ENTITY_PLAYER_LEVELUP  # Default: XP pling sound
+    sound: ENTITY_PLAYER_LEVELUP
     volume: 1.0
     pitch: 1.0
   leave:
-    sound: ENTITY_IRON_GOLEM_DEATH  # Default: Iron Golem death sound
+    sound: BLOCK_NOTE_BLOCK_BASS
     volume: 0.5
     pitch: 1.0
+
+# Message Packs
+message-packs:
+  # Currently selected pack (default, friendly, professional, funny, rpg)
+  selected: "default"
+  
+  # Default pack (original messages)
+  default:
+    join:
+      - "&e%player% &ajust joined the server!"
+    leave:
+      - "&e%player% &chas left the server!"
+  
+  # Friendly pack
+  friendly:
+    join:
+      - "&d✨ &e%player% &ahas joined the party! &d✨"
+      - "&aWelcome back, &e%player%&a! We missed you! &d❤"
+      - "&aLook who's here! &e%player% &ahas arrived! &d✨"
+      - "&d🌟 &aThe amazing &e%player% &ahas joined! &d🌟"
+    leave:
+      - "&e%player% &7had to go... &cSee you soon! &d💕"
+      - "&7Until next time, &e%player%&7! &d👋"
+      - "&7We'll miss you, &e%player%&7! Come back soon! &d💖"
+      - "&e%player% &7went to take a break! &d✨"
+  
+  # Professional pack
+  professional:
+    join:
+      - "&7[&a+&7] &e%player%"
+      - "&8» &e%player% &7has connected"
+      - "&7(&a+&7) &e%player% &7joined the game"
+    leave:
+      - "&7[&c-&7] &e%player%"
+      - "&8« &e%player% &7has disconnected"
+      - "&7(&c-&7) &e%player% &7left the game"
+  
+  # Funny pack
+  funny:
+    join:
+      - "&a%player% &efell from the sky!"
+      - "&eLook out! &a%player% &ejust crashed the party!"
+      - "&a%player% &ejust rolled in like a boss!"
+      - "&eWhoosh! &a%player% &eappeared out of nowhere!"
+    leave:
+      - "&e%player% &cvanished in a puff of smoke!"
+      - "&e%player% &cwas eaten by a dragon... (just kidding!)"
+      - "&e%player% &chad to go touch some grass"
+      - "&e%player% &cran away from their responsibilities"
+  
+  # RPG pack
+  rpg:
+    join:
+      - "&6⚔ &e%player% &6has entered the realm"
+      - "&6🏰 &eA new adventurer, &6%player%&e, arrives"
+      - "&6📜 &eThe legend of &6%player% &ebegins here"
+      - "&6⚔ &eHark! &6%player% &ejoins the quest!"
+    leave:
+      - "&6📜 &e%player% &6retreats to rest at an inn"
+      - "&6⚔ &e%player% &6ventures forth to new lands"
+      - "&6🏰 &e%player% &6must attend to other quests"
+      - "&6📜 &eThe tale of &6%player% &epauses here"

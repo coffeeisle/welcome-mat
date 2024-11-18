@@ -6,6 +6,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.Sound;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PlayerEventListener implements Listener {
     private final WelcomeMat plugin;
@@ -17,45 +19,62 @@ public class PlayerEventListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        LanguageManager lang = plugin.getLanguageManager();
         
         if (player.hasPermission("welcomemat.bypass")) {
             return;
         }
 
         ConfigManager config = plugin.getConfigManager();
-
+        
         if (config.isJoinMessageEnabled()) {
-            event.setJoinMessage(config.getJoinMessage(player.getName()));
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("player", player.getName());
+            event.setJoinMessage(lang.getMessage("join.default", placeholders));
         }
 
         if (config.isJoinTitleEnabled()) {
             try {
                 player.sendTitle(
-                    config.getJoinTitle(),
-                    config.getJoinSubtitle(),
+                    lang.getMessage("join.title"),
+                    lang.getMessage("join.subtitle"),
                     20, 60, 20
                 );
             } catch (NoSuchMethodError e) {
                 player.sendTitle(
-                    config.getJoinTitle(),
-                    config.getJoinSubtitle()
+                    lang.getMessage("join.title"),
+                    lang.getMessage("join.subtitle")
                 );
             }
         }
 
-        if (config.isJoinSoundEnabled() && config.isOtherPlayersSoundsEnabled()) {
+        if (config.isJoinSoundEnabled()) {
             Sound sound = config.getJoinSound();
             if (sound != null) {
-                player.getWorld().getPlayers().forEach(p -> {
-                    if (!p.equals(player) && config.getSoundPreference(p.getUniqueId().toString())) {
-                        p.playSound(
-                            player.getLocation(),
-                            sound,
-                            config.getJoinSoundVolume(),
-                            config.getJoinSoundPitch()
-                        );
+                float volume = config.getJoinSoundVolume();
+                float pitch = config.getJoinSoundPitch();
+                
+                plugin.getLogger().info("Playing join sound: " + sound.name() + 
+                    " (Volume: " + volume + ", Pitch: " + pitch + ")");
+
+                try {
+                    player.playSound(player.getLocation(), sound, volume, pitch);
+                } catch (Exception e) {
+                    plugin.getLogger().warning("Failed to play join sound for joining player: " + e.getMessage());
+                }
+
+                if (config.isOtherPlayersSoundsEnabled()) {
+                    for (Player p : player.getWorld().getPlayers()) {
+                        if (!p.equals(player) && plugin.getDatabaseManager().getSoundPreference(p.getUniqueId())) {
+                            try {
+                                p.playSound(player.getLocation(), sound, volume, pitch);
+                                plugin.getLogger().info("Played join sound for: " + p.getName());
+                            } catch (Exception e) {
+                                plugin.getLogger().warning("Failed to play join sound for " + p.getName() + ": " + e.getMessage());
+                            }
+                        }
                     }
-                });
+                }
             }
         }
     }
@@ -74,19 +93,23 @@ public class PlayerEventListener implements Listener {
             event.setQuitMessage(config.getLeaveMessage(player.getName()));
         }
 
-        if (config.isLeaveSoundEnabled() && config.isOtherPlayersSoundsEnabled()) {
+        if (config.isLeaveSoundEnabled()) {
             Sound sound = config.getLeaveSound();
             if (sound != null) {
-                player.getWorld().getPlayers().forEach(p -> {
-                    if (!p.equals(player) && config.getSoundPreference(p.getUniqueId().toString())) {
-                        p.playSound(
-                            player.getLocation(),
-                            sound,
-                            config.getLeaveSoundVolume(),
-                            config.getLeaveSoundPitch()
-                        );
+                for (Player p : player.getWorld().getPlayers()) {
+                    if (!p.equals(player) && plugin.getDatabaseManager().getSoundPreference(p.getUniqueId())) {
+                        try {
+                            p.playSound(
+                                player.getLocation(),
+                                sound,
+                                config.getLeaveSoundVolume(),
+                                config.getLeaveSoundPitch()
+                            );
+                        } catch (IllegalArgumentException e) {
+                            plugin.getLogger().warning("Failed to play leave sound: " + e.getMessage());
+                        }
                     }
-                });
+                }
             }
         }
     }
