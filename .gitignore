@@ -24,7 +24,7 @@ hs_err_pid*
 replay_pid*
 
 .gradle/
-gradle/
+# gradle/
 build/
 
 modrinth.md
