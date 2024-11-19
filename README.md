@@ -1,3 +1,5 @@
+![WelcomeMat Logo](https://github.com/coffeeisle/welcome-mat/blob/main/assets/gh_header.png)
+
 <div align="center">
   <h1>WelcomeMat</h1>
   <p>A friendly way to roll out the welcome mat for your players!</p>
