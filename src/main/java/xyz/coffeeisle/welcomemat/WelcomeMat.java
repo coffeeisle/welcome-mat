@@ -5,6 +5,7 @@ import net.md_5.bungee.api.ChatColor;
 import xyz.coffeeisle.welcomemat.database.DatabaseManager;
 import xyz.coffeeisle.welcomemat.commands.WelcomeMatCommand;
 import xyz.coffeeisle.welcomemat.LanguageManager;
+import xyz.coffeeisle.welcomemat.gui.GUIListener;
 
 public class WelcomeMat extends JavaPlugin {
     private static WelcomeMat instance;
@@ -57,6 +58,9 @@ public class WelcomeMat extends JavaPlugin {
         
         // Register commands
         getCommand("welcomemat").setExecutor(new WelcomeMatCommand(this));
+        
+        // Register GUI listener
+        getServer().getPluginManager().registerEvents(new GUIListener(this), this);
         
         getLogger().info(GREEN + "WelcomeMat has been enabled!" + RESET);
     }

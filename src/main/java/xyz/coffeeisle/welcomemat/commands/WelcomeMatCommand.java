@@ -9,6 +9,11 @@ import xyz.coffeeisle.welcomemat.WelcomeMat;
 import xyz.coffeeisle.welcomemat.ConfigManager;
 import xyz.coffeeisle.welcomemat.database.DatabaseManager;
 import xyz.coffeeisle.welcomemat.LanguageManager;
+import xyz.coffeeisle.welcomemat.gui.SettingsGUI;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +55,17 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 break;
             case "language":
                 handleLanguage(sender, args);
+                break;
+            case "gui":
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(ChatColor.RED + "This command can only be used by players!");
+                    return true;
+                }
+                if (!sender.hasPermission("welcomemat.config")) {
+                    sender.sendMessage(ChatColor.RED + "You don't have permission to access the settings menu!");
+                    return true;
+                }
+                new SettingsGUI(plugin).openMainMenu((Player) sender);
                 break;
             default:
                 sender.sendMessage(ChatColor.RED + "Unknown command. Use /wm help for help.");
@@ -330,7 +346,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
-            String[] commands = {"reload", "sound", "pack", "config", "help", "language"};
+            String[] commands = {"reload", "sound", "pack", "config", "help", "language", "gui"};
             return filterCompletions(commands, args[0]);
         }
 
@@ -413,6 +429,12 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         LanguageManager lang = plugin.getLanguageManager();
         sender.sendMessage(lang.getMessage("help.header"));
         
+        if (sender instanceof Player && sender.hasPermission("welcomemat.config")) {
+            sender.sendMessage(ChatColor.GOLD + "➤ " + ChatColor.GREEN + "/wm gui " + 
+                ChatColor.GRAY + "- Open settings menu");
+            sender.sendMessage("");
+        }
+
         if (sender.hasPermission("welcomemat.reload")) {
             sender.sendMessage(lang.getMessage("help.reload"));
         }

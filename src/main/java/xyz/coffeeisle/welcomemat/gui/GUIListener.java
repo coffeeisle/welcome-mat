@@ -1,0 +1,184 @@
+package xyz.coffeeisle.welcomemat.gui;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.ChatColor;
+import xyz.coffeeisle.welcomemat.WelcomeMat;
+import xyz.coffeeisle.welcomemat.ConfigManager;
+import org.bukkit.Sound;
+
+public class GUIListener implements Listener {
+    private final WelcomeMat plugin;
+
+    public GUIListener(WelcomeMat plugin) {
+        this.plugin = plugin;
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        event.setCancelled(true);
+        
+        Player player = (Player) event.getWhoClicked();
+        ItemStack clicked = event.getCurrentItem();
+        String title = event.getView().getTitle();
+
+        if (clicked == null || !clicked.hasItemMeta()) return;
+
+        // Main Settings Menu
+        if (title.equals(ChatColor.DARK_GRAY + "WelcomeMat Settings")) {
+            handleMainMenu(player, clicked);
+        }
+        // Language Menu
+        else if (title.equals(ChatColor.DARK_GRAY + "Language Settings")) {
+            handleLanguageMenu(player, clicked);
+        }
+        // Message Packs Menu
+        else if (title.equals(ChatColor.DARK_GRAY + "Message Packs")) {
+            handleMessagePackMenu(player, clicked);
+        }
+        // Sound Settings Menu
+        else if (title.equals(ChatColor.DARK_GRAY + "Sound Settings")) {
+            handleSoundMenu(player, clicked, event.isRightClick());
+        }
+    }
+
+    private void handleMainMenu(Player player, ItemStack clicked) {
+        String itemName = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
+        ConfigManager config = plugin.getConfigManager();
+
+        switch (itemName) {
+            case "Join Message":
+                config.set("features.join-message", !config.isJoinMessageEnabled());
+                playToggleSound(player);
+                break;
+            case "Leave Message":
+                config.set("features.leave-message", !config.isLeaveMessageEnabled());
+                playToggleSound(player);
+                break;
+            case "Join Title":
+                config.set("features.join-title", !config.isJoinTitleEnabled());
+                playToggleSound(player);
+                break;
+            case "Join Sound":
+                config.set("features.join-sound", !config.isJoinSoundEnabled());
+                playToggleSound(player);
+                break;
+            case "Leave Sound":
+                config.set("features.leave-sound", !config.isLeaveSoundEnabled());
+                playToggleSound(player);
+                break;
+            case "Message Pack":
+                new MessagePackGUI(plugin).openMenu(player);
+                return;
+            case "Language":
+                new LanguageGUI(plugin).openMenu(player);
+                return;
+            case "Sound Settings":
+                new SoundSettingsGUI(plugin).openMenu(player);
+                return;
+        }
+        new SettingsGUI(plugin).openMainMenu(player);
+    }
+
+    private void handleLanguageMenu(Player player, ItemStack clicked) {
+        String lang = ChatColor.stripColor(clicked.getItemMeta().getDisplayName()).toLowerCase();
+        if (lang.equals("español")) lang = "spanish";
+        if (plugin.getLanguageManager().setLanguage(lang)) {
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 2.0f);
+        }
+        new SettingsGUI(plugin).openMainMenu(player);
+    }
+
+    private void handleMessagePackMenu(Player player, ItemStack clicked) {
+        String pack = ChatColor.stripColor(clicked.getItemMeta().getDisplayName())
+            .toLowerCase().replace(" pack", "");
+        plugin.getConfigManager().setMessagePack(pack);
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 2.0f);
+        new SettingsGUI(plugin).openMainMenu(player);
+    }
+
+    private void handleSoundMenu(Player player, ItemStack clicked, boolean isRightClick) {
+        String itemName = ChatColor.stripColor(clicked.getItemMeta().getDisplayName());
+        ConfigManager config = plugin.getConfigManager();
+
+        switch (itemName) {
+            case "Join Sound":
+                // Cycle through available sounds
+                Sound currentJoinSound = config.getJoinSound();
+                Sound[] sounds = Sound.values();
+                int index = 0;
+                for (int i = 0; i < sounds.length; i++) {
+                    if (sounds[i] == currentJoinSound) {
+                        index = isRightClick ? (i - 1 + sounds.length) % sounds.length : (i + 1) % sounds.length;
+                        break;
+                    }
+                }
+                config.set("sounds.join.sound", sounds[index].name());
+                player.playSound(player.getLocation(), sounds[index], 1.0f, 1.0f);
+                break;
+
+            case "Leave Sound":
+                // Similar sound cycling for leave sound
+                Sound currentLeaveSound = config.getLeaveSound();
+                Sound[] leaveSounds = Sound.values();
+                int leaveIndex = 0;
+                for (int i = 0; i < leaveSounds.length; i++) {
+                    if (leaveSounds[i] == currentLeaveSound) {
+                        leaveIndex = isRightClick ? (i - 1 + leaveSounds.length) % leaveSounds.length : (i + 1) % leaveSounds.length;
+                        break;
+                    }
+                }
+                config.set("sounds.leave.sound", leaveSounds[leaveIndex].name());
+                player.playSound(player.getLocation(), leaveSounds[leaveIndex], 1.0f, 1.0f);
+                break;
+
+            case "Join Volume":
+                float joinVolume = config.getJoinSoundVolume();
+                joinVolume += isRightClick ? -0.1f : 0.1f;
+                joinVolume = Math.max(0.0f, Math.min(2.0f, joinVolume));
+                config.set("sounds.join.volume", joinVolume);
+                player.playSound(player.getLocation(), config.getJoinSound(), joinVolume, 1.0f);
+                break;
+
+            case "Leave Volume":
+                float leaveVolume = config.getLeaveSoundVolume();
+                leaveVolume += isRightClick ? -0.1f : 0.1f;
+                leaveVolume = Math.max(0.0f, Math.min(2.0f, leaveVolume));
+                config.set("sounds.leave.volume", leaveVolume);
+                player.playSound(player.getLocation(), config.getLeaveSound(), leaveVolume, 1.0f);
+                break;
+
+            case "Join Pitch":
+                float joinPitch = config.getJoinSoundPitch();
+                joinPitch += isRightClick ? -0.1f : 0.1f;
+                joinPitch = Math.max(0.5f, Math.min(2.0f, joinPitch));
+                config.set("sounds.join.pitch", joinPitch);
+                player.playSound(player.getLocation(), config.getJoinSound(), 1.0f, joinPitch);
+                break;
+
+            case "Preview Sounds":
+                // Preview current sound settings
+                player.playSound(player.getLocation(), config.getJoinSound(), 
+                    config.getJoinSoundVolume(), config.getJoinSoundPitch());
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    player.playSound(player.getLocation(), config.getLeaveSound(), 
+                        config.getLeaveSoundVolume(), 1.0f);
+                }, 20L);
+                break;
+
+            case "Back":
+                new SettingsGUI(plugin).openMainMenu(player);
+                return;
+        }
+        new SoundSettingsGUI(plugin).openMenu(player);
+    }
+
+    private void playToggleSound(Player player) {
+        player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 0.5f, 1.0f);
+    }
+} 

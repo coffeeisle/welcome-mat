@@ -57,6 +57,7 @@ languages:
         pack: "&e/welcomemat pack [name] &f- Change message pack"
         config: "&e/welcomemat config &f- Manage configuration"
         language: "&e/welcomemat language &f- Manage language"
+        gui: "&e/welcomemat gui &f- Open settings menu"
         help: "&e/welcomemat help &f- Show this help message"
       
       errors:
@@ -131,6 +132,7 @@ languages:
         pack: "&e/welcomemat pack [nombre] &f- Cambiar paquete de mensajes"
         config: "&e/welcomemat config &f- Gestionar configuración"
         language: "&e/welcomemat language &f- Gestionar idioma"
+        gui: "&e/welcomemat gui &f- Abrir menú de configuración"
         help: "&e/welcomemat help &f- Mostrar este mensaje de ayuda"
       
       errors:
