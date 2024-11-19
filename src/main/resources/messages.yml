@@ -76,6 +76,12 @@ languages:
       leave:
         default: "&e%player% &chas left the server!"
         sound_error: "Failed to play leave sound: %error%"
+      
+      effects:
+        enabled: "&aJoin effects enabled!"
+        disabled: "&eJoin effects disabled!"
+        no-permission: "&cYou don't have permission to toggle effects!"
+        players-only: "&cThis command can only be used by players!"
 
   spanish:
     name: "Español"
@@ -151,5 +157,11 @@ languages:
       leave:
         default: "&e%player% &c¡ha abandonado el servidor!"
         sound_error: "Error al reproducir sonido de salida: %error%"
+      
+      effects:
+        enabled: "&a¡Efectos de entrada activados!"
+        disabled: "&e¡Efectos de entrada desactivados!"
+        no-permission: "&c¡No tienes permiso para cambiar los efectos!"
+        players-only: "&c¡Este comando solo puede ser usado por jugadores!"
 
 # Add more languages following the same pattern 

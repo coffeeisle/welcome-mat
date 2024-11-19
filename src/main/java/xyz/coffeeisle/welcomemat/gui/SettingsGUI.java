@@ -64,6 +64,13 @@ public class SettingsGUI {
                 ChatColor.GRAY + "• Pitch"
             )));
 
+        // Join Effects toggle
+        if (plugin.getConfig().getBoolean("effects.enabled")) {
+            inv.setItem(16, createToggleItem("Join Effects", 
+                plugin.getDatabaseManager().getEffectPreference(player.getUniqueId()), 
+                Material.FIREWORK_ROCKET));
+        }
+
         player.openInventory(inv);
     }
 

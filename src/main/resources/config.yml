@@ -99,3 +99,15 @@ message-packs:
       - "&6⚔ &e%player% &6ventures forth to new lands"
       - "&6🏰 &e%player% &6must attend to other quests"
       - "&6📜 &eThe tale of &6%player% &epauses here"
+
+effects:
+  enabled: true  # Global toggle for join effects
+  type: "SPIRAL"  # SPIRAL, HELIX, FOUNTAIN, BURST
+  duration: 3     # Duration in seconds
+  particles:
+    primary: "FIREWORK"
+    secondary: "SPELL_WITCH"
+  colors:
+    - "RED"
+    - "YELLOW"
+    - "BLUE"

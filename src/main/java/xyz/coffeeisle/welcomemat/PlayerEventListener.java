@@ -77,6 +77,9 @@ public class PlayerEventListener implements Listener {
                 }
             }
         }
+
+        // Play join effect if enabled
+        plugin.getJoinEffectManager().playEffect(player);
     }
 
     @EventHandler

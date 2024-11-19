@@ -1,5 +1,5 @@
 name: WelcomeMat
-version: '1.0.9'
+version: '1.1.0'
 main: xyz.coffeeisle.welcomemat.WelcomeMat
 api-version: '1.13'
 authors: [angeldev0]

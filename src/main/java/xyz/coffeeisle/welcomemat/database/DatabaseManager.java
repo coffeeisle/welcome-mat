@@ -138,4 +138,56 @@ public class DatabaseManager {
             return false;
         }
     }
+
+    public void createTables() {
+        // ... existing table creation ...
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("CREATE TABLE IF NOT EXISTS player_preferences ("
+                    + "uuid VARCHAR(36) PRIMARY KEY,"
+                    + "sounds_enabled BOOLEAN DEFAULT TRUE,"
+                    + "effects_enabled BOOLEAN DEFAULT TRUE"  // Add this line
+                    + ")");
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to create tables: " + e.getMessage());
+        }
+    }
+
+    public boolean getEffectPreference(UUID uuid) {
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT effects_enabled FROM player_preferences WHERE uuid = ?")) {
+            stmt.setString(1, uuid.toString());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getBoolean("effects_enabled");
+            } else {
+                setEffectPreference(uuid, true);
+                return true;
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Failed to get effect preference: " + e.getMessage());
+            return true;
+        }
+    }
+
+    public void setEffectPreference(UUID uuid, boolean enabled) {
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT OR REPLACE INTO player_preferences (uuid, effects_enabled) VALUES (?, ?)")) {
+            stmt.setString(1, uuid.toString());
+            stmt.setBoolean(2, enabled);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Failed to set effect preference: " + e.getMessage());
+        }
+    }
+
+    private Connection getConnection() throws SQLException {
+        if (connection == null || connection.isClosed()) {
+            String dbPath = plugin.getDataFolder().getAbsolutePath() + "/welcomemat.db";
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+        }
+        return connection;
+    }
 } 

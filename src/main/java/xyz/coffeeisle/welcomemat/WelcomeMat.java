@@ -6,12 +6,14 @@ import xyz.coffeeisle.welcomemat.database.DatabaseManager;
 import xyz.coffeeisle.welcomemat.commands.WelcomeMatCommand;
 import xyz.coffeeisle.welcomemat.LanguageManager;
 import xyz.coffeeisle.welcomemat.gui.GUIListener;
+import xyz.coffeeisle.welcomemat.effects.JoinEffectManager;
 
 public class WelcomeMat extends JavaPlugin {
     private static WelcomeMat instance;
     private ConfigManager configManager;
     private DatabaseManager databaseManager;
     private LanguageManager languageManager;
+    private JoinEffectManager joinEffectManager;
 
     // ANSI color codes for console
     private static final String GOLD = "\u001B[33m";
@@ -62,6 +64,8 @@ public class WelcomeMat extends JavaPlugin {
         // Register GUI listener
         getServer().getPluginManager().registerEvents(new GUIListener(this), this);
         
+        this.joinEffectManager = new JoinEffectManager(this);
+        
         getLogger().info(GREEN + "WelcomeMat has been enabled!" + RESET);
     }
 
@@ -88,5 +92,9 @@ public class WelcomeMat extends JavaPlugin {
 
     public LanguageManager getLanguageManager() {
         return languageManager;
+    }
+
+    public JoinEffectManager getJoinEffectManager() {
+        return joinEffectManager;
     }
 } 

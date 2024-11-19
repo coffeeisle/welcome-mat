@@ -67,6 +67,9 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 }
                 new SettingsGUI(plugin).openMainMenu((Player) sender);
                 break;
+            case "effects":
+                handleEffects(sender);
+                break;
             default:
                 sender.sendMessage(ChatColor.RED + "Unknown command. Use /wm help for help.");
         }
@@ -341,6 +344,32 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void handleEffects(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(plugin.getLanguageManager().getMessage("effects.players_only"));
+            return;
+        }
+
+        Player player = (Player) sender;
+        if (!player.hasPermission("welcomemat.effects")) {
+            player.sendMessage(plugin.getLanguageManager().getMessage("effects.no_permission"));
+            return;
+        }
+
+        if (!plugin.getConfig().getBoolean("effects.enabled")) {
+            player.sendMessage(plugin.getLanguageManager().getMessage("effects.disabled"));
+            return;
+        }
+
+        DatabaseManager db = plugin.getDatabaseManager();
+        boolean current = db.getEffectPreference(player.getUniqueId());
+        db.setEffectPreference(player.getUniqueId(), !current);
+        
+        player.sendMessage(plugin.getLanguageManager().getMessage(
+            current ? "effects.disabled" : "effects.enabled"));
+        playToggleSound(player);
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
@@ -457,5 +486,9 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         return Arrays.stream(options)
             .filter(option -> option.toLowerCase().startsWith(input.toLowerCase()))
             .collect(Collectors.toList());
+    }
+
+    private void playToggleSound(Player player) {
+        player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 0.5f, 1.0f);
     }
 } 
