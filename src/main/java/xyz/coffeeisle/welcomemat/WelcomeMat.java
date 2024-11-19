@@ -7,6 +7,7 @@ import xyz.coffeeisle.welcomemat.commands.WelcomeMatCommand;
 import xyz.coffeeisle.welcomemat.LanguageManager;
 import xyz.coffeeisle.welcomemat.gui.GUIListener;
 import xyz.coffeeisle.welcomemat.effects.JoinEffectManager;
+import org.bukkit.command.PluginCommand;
 
 public class WelcomeMat extends JavaPlugin {
     private static WelcomeMat instance;
@@ -40,45 +41,45 @@ public class WelcomeMat extends JavaPlugin {
         getLogger().info(YELLOW + "Made with " + RED + "♥" + YELLOW + " by angeldev0" + RESET);
         getLogger().info("");
         
-        // Initialize config
-        saveDefaultConfig();
-        configManager = new ConfigManager(this);
-        
-        // Initialize database
-        databaseManager = new DatabaseManager(this);
-        
-        // Initialize language manager
-        languageManager = new LanguageManager(this);
-        
-        // Verify database connection
-        if (!databaseManager.isDatabaseConnected()) {
-            getLogger().warning("Database connection failed - using config fallback for sound preferences");
+        // Create plugin directory if it doesn't exist
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdirs();
         }
+
+        // Initialize managers in the correct order
+        this.configManager = new ConfigManager(this);
+        this.languageManager = new LanguageManager(this);
         
-        // Register events
+        // Initialize database first and verify connection
+        this.databaseManager = new DatabaseManager(this);
+        if (!this.databaseManager.initialize()) {
+            getLogger().warning("Failed to initialize database - using config fallback");
+            // Continue loading as we have config fallback
+        }
+
+        // Initialize effects manager after database
+        this.joinEffectManager = new JoinEffectManager(this);
+
+        // Register events and commands
         getServer().getPluginManager().registerEvents(new PlayerEventListener(this), this);
-        
-        // Register commands
-        getCommand("welcomemat").setExecutor(new WelcomeMatCommand(this));
-        
-        // Register GUI listener
         getServer().getPluginManager().registerEvents(new GUIListener(this), this);
         
-        this.joinEffectManager = new JoinEffectManager(this);
-        
-        // Create database tables
-        this.databaseManager.createTables();
-        
-        getLogger().info(GREEN + "WelcomeMat has been enabled!" + RESET);
+        PluginCommand cmd = getCommand("welcomemat");
+        if (cmd != null) {
+            WelcomeMatCommand executor = new WelcomeMatCommand(this);
+            cmd.setExecutor(executor);
+            cmd.setTabCompleter(executor);
+        }
+
+        getLogger().info("WelcomeMat has been enabled!");
     }
 
     @Override
     public void onDisable() {
         if (databaseManager != null) {
-            databaseManager.close();
+            databaseManager.closeConnection();
         }
-        getLogger().info(RED + "WelcomeMat has been disabled!" + RESET);
-        instance = null;
+        getLogger().info("WelcomeMat has been disabled!");
     }
 
     public static WelcomeMat getInstance() {
