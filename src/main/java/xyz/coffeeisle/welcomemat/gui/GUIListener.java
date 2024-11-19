@@ -13,6 +13,12 @@ import org.bukkit.Sound;
 
 public class GUIListener implements Listener {
     private final WelcomeMat plugin;
+    private static final String[] GUI_TITLES = {
+        ChatColor.DARK_GRAY + "WelcomeMat Settings",
+        ChatColor.DARK_GRAY + "Language Settings",
+        ChatColor.DARK_GRAY + "Message Packs",
+        ChatColor.DARK_GRAY + "Sound Settings"
+    };
 
     public GUIListener(WelcomeMat plugin) {
         this.plugin = plugin;
@@ -20,12 +26,19 @@ public class GUIListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) return;
-        event.setCancelled(true);
+        String title = event.getView().getTitle();
         
+        // Only handle events for our GUI windows
+        if (!isPluginGUI(title)) {
+            return;
+        }
+
+        // Cancel the event only for our GUIs
+        event.setCancelled(true);
+
+        if (!(event.getWhoClicked() instanceof Player)) return;
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
-        String title = event.getView().getTitle();
 
         if (clicked == null || !clicked.hasItemMeta()) return;
 
@@ -45,6 +58,15 @@ public class GUIListener implements Listener {
         else if (title.equals(ChatColor.DARK_GRAY + "Sound Settings")) {
             handleSoundMenu(player, clicked, event.isRightClick());
         }
+    }
+
+    private boolean isPluginGUI(String title) {
+        for (String guiTitle : GUI_TITLES) {
+            if (guiTitle.equals(title)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void handleMainMenu(Player player, ItemStack clicked) {
