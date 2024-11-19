@@ -140,14 +140,26 @@ public class DatabaseManager {
     }
 
     public void createTables() {
-        // ... existing table creation ...
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
+            
+            // Create sounds preferences table if it doesn't exist
+            stmt.execute("CREATE TABLE IF NOT EXISTS sound_preferences ("
+                    + "uuid VARCHAR(36) PRIMARY KEY,"
+                    + "enabled BOOLEAN DEFAULT TRUE"
+                    + ")");
+            
+            // Create player preferences table if it doesn't exist
             stmt.execute("CREATE TABLE IF NOT EXISTS player_preferences ("
                     + "uuid VARCHAR(36) PRIMARY KEY,"
                     + "sounds_enabled BOOLEAN DEFAULT TRUE,"
-                    + "effects_enabled BOOLEAN DEFAULT TRUE"  // Add this line
+                    + "effects_enabled BOOLEAN DEFAULT TRUE"
                     + ")");
+
+            // Migrate existing sound preferences if needed
+            stmt.execute("INSERT OR IGNORE INTO player_preferences (uuid, sounds_enabled) "
+                    + "SELECT uuid, enabled FROM sound_preferences");
+
         } catch (SQLException e) {
             plugin.getLogger().severe("Failed to create tables: " + e.getMessage());
         }
@@ -159,10 +171,16 @@ public class DatabaseManager {
                      "SELECT effects_enabled FROM player_preferences WHERE uuid = ?")) {
             stmt.setString(1, uuid.toString());
             ResultSet rs = stmt.executeQuery();
+            
             if (rs.next()) {
                 return rs.getBoolean("effects_enabled");
             } else {
-                setEffectPreference(uuid, true);
+                // Insert default preference
+                try (PreparedStatement insertStmt = conn.prepareStatement(
+                        "INSERT INTO player_preferences (uuid, effects_enabled) VALUES (?, TRUE)")) {
+                    insertStmt.setString(1, uuid.toString());
+                    insertStmt.executeUpdate();
+                }
                 return true;
             }
         } catch (SQLException e) {
@@ -174,9 +192,19 @@ public class DatabaseManager {
     public void setEffectPreference(UUID uuid, boolean enabled) {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                     "INSERT OR REPLACE INTO player_preferences (uuid, effects_enabled) VALUES (?, ?)")) {
+                     "INSERT OR REPLACE INTO player_preferences (uuid, effects_enabled) "
+                     + "SELECT ?, ?, sounds_enabled FROM player_preferences WHERE uuid = ? "
+                     + "UNION ALL "
+                     + "SELECT ?, ?, TRUE WHERE NOT EXISTS (SELECT 1 FROM player_preferences WHERE uuid = ?)")) {
+            // For existing records
             stmt.setString(1, uuid.toString());
             stmt.setBoolean(2, enabled);
+            stmt.setString(3, uuid.toString());
+            // For new records
+            stmt.setString(4, uuid.toString());
+            stmt.setBoolean(5, enabled);
+            stmt.setString(6, uuid.toString());
+            
             stmt.executeUpdate();
         } catch (SQLException e) {
             plugin.getLogger().warning("Failed to set effect preference: " + e.getMessage());

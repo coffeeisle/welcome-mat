@@ -66,6 +66,9 @@ public class WelcomeMat extends JavaPlugin {
         
         this.joinEffectManager = new JoinEffectManager(this);
         
+        // Create database tables
+        this.databaseManager.createTables();
+        
         getLogger().info(GREEN + "WelcomeMat has been enabled!" + RESET);
     }
 
