@@ -12,7 +12,10 @@
       <img alt="Discord" src="https://img.shields.io/discord/813255312449601597?logo=discord&labelColor=34343c&color=5865F2">
     </a>
     <a href="https://github.com/coffeeisle/welcome-mat">
-      <img alt="GitHub" src="https://img.shields.io/badge/dynamic/json?label=Available%20for&color=4bab62&query=version&url=https://api.blueish.dev/api/minecraft/version?id=welcome-mat">
+      <img alt="Modrinth Game Versions" src="https://img.shields.io/modrinth/game-versions/welcome-mat?color=00AF5C&label=Game Versions&logo=modrinth">
+    </a>
+    <a href="https://modrinth.com/plugin/welcome-mat">
+      <img alt="Modrinth Version" src="https://img.shields.io/modrinth/v/welcome-mat?&color=blue&label=Plugin Version">
     </a>
   </p>
 </div>
