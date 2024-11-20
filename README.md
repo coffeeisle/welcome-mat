@@ -6,7 +6,7 @@
   
   <p>
     <a href="https://modrinth.com/plugin/welcome-mat">
-      <img alt="Modrinth Downloads" src="https://img.shields.io/modrinth/dt/welcomemat?logo=modrinth&labelColor=34343c&color=00AF5C">
+      <img alt="Modrinth Downloads" src="https://img.shields.io/modrinth/dt/welcome-mat?logo=modrinth&labelColor=34343c&color=00AF5C">
     </a>
     <a href="https://discord.gg/cJ4uP2xF7h">
       <img alt="Discord" src="https://img.shields.io/discord/813255312449601597?logo=discord&labelColor=34343c&color=5865F2">
