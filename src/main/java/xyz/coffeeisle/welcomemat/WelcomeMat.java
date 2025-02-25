@@ -8,6 +8,8 @@ import xyz.coffeeisle.welcomemat.LanguageManager;
 import xyz.coffeeisle.welcomemat.gui.GUIListener;
 import xyz.coffeeisle.welcomemat.effects.JoinEffectManager;
 import org.bukkit.command.PluginCommand;
+import xyz.coffeeisle.welcomemat.effects.AnimationRegistry;
+import xyz.coffeeisle.welcomemat.analytics.Analytics;
 
 public class WelcomeMat extends JavaPlugin {
     private static WelcomeMat instance;
@@ -15,6 +17,8 @@ public class WelcomeMat extends JavaPlugin {
     private DatabaseManager databaseManager;
     private LanguageManager languageManager;
     private JoinEffectManager joinEffectManager;
+    private AnimationRegistry animationRegistry;
+    private Analytics analytics;
 
     // ANSI color codes for console
     private static final String GOLD = "\u001B[33m";
@@ -30,6 +34,9 @@ public class WelcomeMat extends JavaPlugin {
     public void onEnable() {
         instance = this;
         
+        // Initialize AnimationRegistry
+        this.animationRegistry = new AnimationRegistry();
+
         // Display startup message
         getLogger().info(RED + "  __      __" + WHITE + "   _                  " + YELLOW + "  __  __       _   " + RESET);
         getLogger().info(RED + "  \\ \\    /" + WHITE + " /__| |__ ___ _ __  ___ " + YELLOW + " |  \\/  |__ _ | |_ " + RESET);
@@ -71,6 +78,10 @@ public class WelcomeMat extends JavaPlugin {
             cmd.setTabCompleter(executor);
         }
 
+        // Initialize and start analytics
+        this.analytics = new Analytics(this);
+        this.analytics.startTracking();
+
         getLogger().info("WelcomeMat has been enabled!");
     }
 
@@ -78,6 +89,9 @@ public class WelcomeMat extends JavaPlugin {
     public void onDisable() {
         if (databaseManager != null) {
             databaseManager.closeConnection();
+        }
+        if (analytics != null) {
+            analytics.shutdown();
         }
         getLogger().info("WelcomeMat has been disabled!");
     }
@@ -101,4 +115,7 @@ public class WelcomeMat extends JavaPlugin {
     public JoinEffectManager getJoinEffectManager() {
         return joinEffectManager;
     }
-} 
+    public AnimationRegistry getAnimationRegistry() {
+        return animationRegistry;
+    }
+}

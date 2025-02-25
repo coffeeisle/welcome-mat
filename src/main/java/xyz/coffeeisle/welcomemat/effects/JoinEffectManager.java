@@ -99,7 +99,7 @@ public class JoinEffectManager {
 
                     Location particleLoc = loc.clone().add(x, y, z);
                     player.getWorld().spawnParticle(
-                        Particle.SPELL_WITCH,
+                        Particle.DRAGON_BREATH,
                         particleLoc,
                         1, 0, 0, 0, 0
                     );
@@ -126,7 +126,7 @@ public class JoinEffectManager {
                     double z = Math.sin(angle);
                     
                     loc.getWorld().spawnParticle(
-                        Particle.SPELL_INSTANT,
+                        Particle.CRIT,
                         loc.clone().add(0, 1, 0),
                         0, x/2, 1, z/2, 0.15
                     );
@@ -151,11 +151,11 @@ public class JoinEffectManager {
                 double z = Math.sin(angle) * radius;
                 
                 loc.getWorld().spawnParticle(
-                    Particle.SPELL_WITCH,
+                    Particle.DRAGON_BREATH,
                     loc.clone().add(x, y, z),
                     1, 0, 0, 0, 0
                 );
             }
         }
     }
-} 
+}

@@ -28,6 +28,8 @@ replay_pid*
 build/
 
 modrinth.md
+INFO.md
+RELEASE_NOTES.md
 
 .vscode
 .github

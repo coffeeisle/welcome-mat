@@ -30,12 +30,41 @@ WelcomeMat is available on Modrinth! Click the button below to download:
 
 ## ✨ Features
 
-- 🎨 **Message Packs** - Multiple themed welcome messages
-- 📜 **Welcome Titles** - Customizable titles and subtitles
-- 🔊 **Interactive Sounds** - Configurable join/leave sounds
-- ✨ **Join Effects** - Beautiful particle effects
-- 🌐 **Language Support** - Multiple language options
-- ⚙️ **User-Friendly GUI** - Easy settings management
+### Core Features
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Message Packs | Multiple themed welcome messages | ✅ Implemented |
+| Welcome Titles | Customizable titles and subtitles | ✅ Implemented |
+| Interactive Sounds | Configurable join/leave sounds | ✅ Implemented |
+| Join Effects | Beautiful particle effects | ✅ Implemented |
+| Language Support | Multiple language options | ✅ Implemented |
+| User-Friendly GUI | Easy settings management | ✅ Implemented |
+
+### Player Experience
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Custom Message Delays | Set timing for welcome messages | ✅ Implemented |
+| Player-specific Messages | Personalized greetings based on player history | ✅ Implemented |
+| Message Randomization | Random selection from message pool | ✅ Implemented |
+| First Join Special Events | Unique celebrations for first-time players | ✅ Implemented |
+| Multi-world Support | Different settings per world | 🚧 Planned |
+
+### Administration
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Message Templates | Pre-made message templates | ✅ Implemented |
+| Permissions System | Granular permission control | ✅ Implemented |
+| Message Scheduling | Time-based welcome messages | ✅ Implemented |
+| Statistics Tracking | Track player join/leave patterns | 🚧 Planned |
+
+### Quality of Life
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Command Shortcuts | Quick commands for common actions | ✅ Implemented |
+| Message Preview | Preview messages before saving | ✅ Implemented |
+| Import/Export | Share configurations between servers | 🚧 Planned |
+| Auto-updates | Automatic plugin updates | 🚧 Planned |
+| Performance Optimization | Improved resource usage | ✅ Implemented |
 
 ## 📚 Documentation
 

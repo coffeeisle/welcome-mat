@@ -14,6 +14,11 @@ import java.util.stream.Collectors;
 public class ConfigManager {
     private final WelcomeMat plugin;
     private FileConfiguration config;
+    
+    // Default delay values in milliseconds
+    private static final long DEFAULT_JOIN_DELAY = 0;
+    private static final long DEFAULT_WELCOME_DELAY = 1000;
+    private static final long DEFAULT_TITLE_DELAY = 500;
 
     public ConfigManager(WelcomeMat plugin) {
         this.plugin = plugin;
@@ -24,11 +29,24 @@ public class ConfigManager {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
         config = plugin.getConfig();
+        
+        // Ensure default delay configurations exist
+        if (!config.isSet("delays.join")) {
+            config.set("delays.join", DEFAULT_JOIN_DELAY);
+        }
+        if (!config.isSet("delays.welcome")) {
+            config.set("delays.welcome", DEFAULT_WELCOME_DELAY);
+        }
+        if (!config.isSet("delays.title")) {
+            config.set("delays.title", DEFAULT_TITLE_DELAY);
+        }
+        plugin.saveConfig();
     }
 
-    public String getJoinMessage(String playerName) {
+    public String getJoinMessage(String playerName, boolean isFirstJoin) {
         String pack = config.getString("message-packs.selected", "default");
-        List<String> messages = config.getStringList("message-packs." + pack + ".join");
+        String messageType = isFirstJoin ? "first-join" : "join";
+        List<String> messages = config.getStringList("message-packs." + pack + "." + messageType);
         
         if (messages == null || messages.isEmpty()) {
             // Fallback to default message
@@ -41,6 +59,10 @@ public class ConfigManager {
         return ChatColor.translateAlternateColorCodes('&', message.replace("%player%", playerName));
     }
 
+    public long getMessageDelay(String type) {
+        return config.getLong("delays." + type, DEFAULT_JOIN_DELAY);
+    }
+    
     public String getLeaveMessage(String playerName) {
         String pack = config.getString("message-packs.selected", "default");
         List<String> messages = config.getStringList("message-packs." + pack + ".leave");
@@ -202,4 +224,4 @@ public class ConfigManager {
     public float getFloat(String path, float defaultValue) {
         return (float) config.getDouble(path, defaultValue);
     }
-} 
+}

@@ -1,0 +1,38 @@
+# Display names for configuration elements
+
+# Sound display names
+sounds:
+  BLOCK_NOTE_BLOCK_PLING: "Note Block Pling"
+  BLOCK_NOTE_BLOCK_CHIME: "Note Block Chime"
+  BLOCK_NOTE_BLOCK_BELL: "Note Block Bell"
+  BLOCK_NOTE_BLOCK_BASS: "Note Block Bass"
+  ENTITY_PLAYER_LEVELUP: "Player Level Up"
+  ENTITY_EXPERIENCE_ORB_PICKUP: "Experience Orb Pickup"
+  BLOCK_ANVIL_LAND: "Anvil Land"
+  ENTITY_VILLAGER_YES: "Villager Yes"
+  ENTITY_VILLAGER_NO: "Villager No"
+
+# Effect display names
+effects:
+  SPIRAL: "Spiral Effect"
+  HELIX: "Helix Effect"
+  CIRCLE: "Circle Effect"
+  WAVE: "Wave Effect"
+
+# Particle display names
+particles:
+  effects.particles: "Default Particles"
+  effects.special: "Special Particles"
+  effects.custom: "Custom Particles"
+
+# Configuration paths display names
+config_paths:
+  sounds.join.sound: "Join Sound"
+  sounds.join.volume: "Join Sound Volume"
+  sounds.leave.sound: "Leave Sound"
+  sounds.leave.volume: "Leave Sound Volume"
+  messages.style: "Message Style"
+  effects.enabled: "Effects Status"
+  effects.type: "Effect Type"
+  effects.duration: "Effect Duration"
+  effects.particles: "Particle Type"

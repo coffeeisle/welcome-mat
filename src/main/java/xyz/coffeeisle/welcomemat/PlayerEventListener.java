@@ -11,9 +11,11 @@ import java.util.Map;
 
 public class PlayerEventListener implements Listener {
     private final WelcomeMat plugin;
+    private final PlayerDataManager playerDataManager;
 
     public PlayerEventListener(WelcomeMat plugin) {
         this.plugin = plugin;
+        this.playerDataManager = new PlayerDataManager(plugin);
     }
 
     @EventHandler
@@ -26,6 +28,8 @@ public class PlayerEventListener implements Listener {
         }
 
         ConfigManager config = plugin.getConfigManager();
+        PlayerDataManager.PlayerData playerData = playerDataManager.getPlayerData(player);
+        boolean isFirstJoin = !player.hasPlayedBefore();
         
         if (config.isJoinMessageEnabled()) {
             Map<String, String> placeholders = new HashMap<>();
@@ -116,4 +120,4 @@ public class PlayerEventListener implements Listener {
             }
         }
     }
-} 
+}

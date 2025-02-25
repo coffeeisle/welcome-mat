@@ -276,14 +276,19 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 
                 // Pretty print the value based on type
                 if (val instanceof ConfigurationSection) {
-                    sender.sendMessage(ChatColor.GOLD + "Section " + ChatColor.YELLOW + args[2] + ChatColor.GOLD + ":");
+                    String displayPath = plugin.getConfig().getString("display-names.config_paths." + args[2], args[2]);
+                    sender.sendMessage(ChatColor.GOLD + "Section " + ChatColor.YELLOW + displayPath + ChatColor.GOLD + ":");
                     ConfigurationSection section = (ConfigurationSection) val;
                     for (String key : section.getKeys(false)) {
                         Object sectionValue = section.get(key);
-                        sender.sendMessage(ChatColor.YELLOW + "  " + key + ": " + ChatColor.WHITE + sectionValue);
+                        String displayKey = plugin.getConfig().getString("display-names." + args[2] + "." + key, key);
+                        String displayValue = formatValue(sectionValue);
+                        sender.sendMessage(ChatColor.YELLOW + "  " + displayKey + ": " + ChatColor.WHITE + displayValue);
                     }
                 } else {
-                    sender.sendMessage(ChatColor.GOLD + args[2] + ": " + ChatColor.YELLOW + val);
+                    String displayPath = plugin.getConfig().getString("display-names.config_paths." + args[2], args[2]);
+                    String displayValue = formatValue(val);
+                    sender.sendMessage(ChatColor.GOLD + displayPath + ": " + ChatColor.YELLOW + displayValue);
                 }
                 break;
 
@@ -491,4 +496,26 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
     private void playToggleSound(Player player) {
         player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 0.5f, 1.0f);
     }
-} 
+
+    private String formatValue(Object value) {
+        if (value instanceof String) {
+            String strValue = (String) value;
+            // Check if it's a sound name
+            String soundDisplay = plugin.getConfig().getString("display-names.sounds." + strValue, null);
+            if (soundDisplay != null) {
+                return soundDisplay;
+            }
+            // Check if it's an effect type
+            String effectDisplay = plugin.getConfig().getString("display-names.effects." + strValue, null);
+            if (effectDisplay != null) {
+                return effectDisplay;
+            }
+            // Check if it's a particle type
+            String particleDisplay = plugin.getConfig().getString("display-names.particles." + strValue, null);
+            if (particleDisplay != null) {
+                return particleDisplay;
+            }
+        }
+        return String.valueOf(value);
+    }
+}
