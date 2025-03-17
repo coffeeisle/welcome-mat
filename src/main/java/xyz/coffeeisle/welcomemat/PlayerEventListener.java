@@ -32,9 +32,7 @@ public class PlayerEventListener implements Listener {
         boolean isFirstJoin = !player.hasPlayedBefore();
         
         if (config.isJoinMessageEnabled()) {
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("player", player.getName());
-            event.setJoinMessage(lang.getMessage("join.default", placeholders));
+            event.setJoinMessage(config.getJoinMessage(player.getName(), isFirstJoin));
         }
 
         if (config.isJoinTitleEnabled()) {

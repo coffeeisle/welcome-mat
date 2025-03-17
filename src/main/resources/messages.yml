@@ -1,6 +1,67 @@
 # Available languages: english, spanish
 selected-language: "english"
 
+# Message packs configuration
+message-packs:
+  # Available packs: default, friendly, professional, funny, rpg
+  default:
+    name: "Default"
+    messages:
+      join:
+        - "&e%player% &ajust joined the server!"
+      leave:
+        - "&e%player% &chas left the server!"
+  friendly:
+    name: "Friendly"
+    messages:
+      join:
+        - "&d✨ &e%player% &ahas joined the party! &d✨"
+        - "&aWelcome back, &e%player%&a! We missed you! &d❤"
+        - "&aLook who's here! &e%player% &ahas arrived! &d✨"
+        - "&d🌟 &aThe amazing &e%player% &ahas joined! &d🌟"
+      leave:
+        - "&e%player% &7had to go... &cSee you soon! &d💕"
+        - "&7Until next time, &e%player%&7! &d👋"
+        - "&7We'll miss you, &e%player%&7! Come back soon! &d💖"
+        - "&e%player% &7went to take a break! &d✨"
+  professional:
+    name: "Professional"
+    messages:
+      join:
+        - "&7[&a+&7] &e%player%"
+        - "&8» &e%player% &7has connected"
+        - "&7(&a+&7) &e%player% &7joined the game"
+      leave:
+        - "&7[&c-&7] &e%player%"
+        - "&8« &e%player% &7has disconnected"
+        - "&7(&c-&7) &e%player% &7left the game"
+  funny:
+    name: "Funny"
+    messages:
+      join:
+        - "&a%player% &efell from the sky!"
+        - "&eLook out! &a%player% &ejust crashed the party!"
+        - "&a%player% &ejust rolled in like a boss!"
+        - "&eWhoosh! &a%player% &eappeared out of nowhere!"
+      leave:
+        - "&e%player% &cvanished in a puff of smoke!"
+        - "&e%player% &cwas eaten by a dragon... (just kidding!)"
+        - "&e%player% &chad to go touch some grass"
+        - "&e%player% &cran away from their responsibilities"
+  rpg:
+    name: "RPG Fantasy"
+    messages:
+      join:
+        - "&6⚔ &e%player% &6has entered the realm"
+        - "&6🏰 &eA new adventurer, &6%player%&e, arrives"
+        - "&6📜 &eThe legend of &6%player% &ebegins here"
+        - "&6⚔ &eHark! &6%player% &ejoins the quest!"
+      leave:
+        - "&6📜 &e%player% &6retreats to rest at an inn"
+        - "&6⚔ &e%player% &6ventures forth to new lands"
+        - "&6🏰 &e%player% &6must attend to other quests"
+        - "&6📜 &eThe tale of &6%player% &epauses here"
+
 languages:
   english:
     name: "English"
@@ -86,6 +147,55 @@ languages:
   spanish:
     name: "Español"
     messages:
+      # Message packs
+      default:
+        join:
+          - "&e%player% &a¡se ha unido al servidor!"
+        leave:
+          - "&e%player% &c¡ha abandonado el servidor!"
+      friendly:
+        join:
+          - "&d✨ &e%player% &a¡se ha unido a la fiesta! &d✨"
+          - "&a¡Bienvenido de nuevo, &e%player%&a! ¡Te extrañamos! &d❤"
+          - "&a¡Mira quién está aquí! &e%player% &a¡ha llegado! &d✨"
+          - "&d🌟 &a¡El increíble &e%player% &ase ha unido! &d🌟"
+        leave:
+          - "&e%player% &7tuvo que irse... &c¡Hasta pronto! &d💕"
+          - "&7¡Hasta la próxima, &e%player%&7! &d👋"
+          - "&7¡Te extrañaremos, &e%player%&7! ¡Vuelve pronto! &d💖"
+          - "&e%player% &7¡se fue a tomar un descanso! &d✨"
+      professional:
+        join:
+          - "&7[&a+&7] &e%player%"
+          - "&8» &e%player% &7se ha conectado"
+          - "&7(&a+&7) &e%player% &7se unió al juego"
+        leave:
+          - "&7[&c-&7] &e%player%"
+          - "&8« &e%player% &7se ha desconectado"
+          - "&7(&c-&7) &e%player% &7abandonó el juego"
+      funny:
+        join:
+          - "&a%player% &e¡cayó del cielo!"
+          - "&e¡Cuidado! &a%player% &e¡acaba de irrumpir en la fiesta!"
+          - "&a%player% &e¡acaba de entrar como un jefe!"
+          - "&e¡Whoosh! &a%player% &e¡apareció de la nada!"
+        leave:
+          - "&e%player% &c¡desapareció en una nube de humo!"
+          - "&e%player% &c¡fue devorado por un dragón... (¡es broma!)"
+          - "&e%player% &c¡tuvo que ir a tocar algo de hierba"
+          - "&e%player% &c¡huyó de sus responsabilidades"
+      rpg:
+        join:
+          - "&6⚔ &e%player% &6ha entrado en el reino"
+          - "&6🏰 &eUn nuevo aventurero, &6%player%&e, llega"
+          - "&6📜 &eLa leyenda de &6%player% &ecomienza aquí"
+          - "&6⚔ &e¡Escuchad! &6%player% &e¡se une a la misión!"
+        leave:
+          - "&6📜 &e%player% &6se retira a descansar en una posada"
+          - "&6⚔ &e%player% &6se aventura hacia nuevas tierras"
+          - "&6🏰 &e%player% &6debe atender otras misiones"
+          - "&6📜 &eLa historia de &6%player% &ese pausa aquí"
+      
       # Command messages
       reload:
         success: "&a¡Configuración de WelcomeMat recargada!"
@@ -164,4 +274,3 @@ languages:
         no-permission: "&c¡No tienes permiso para cambiar los efectos!"
         players-only: "&c¡Este comando solo puede ser usado por jugadores!"
 
-# Add more languages following the same pattern 

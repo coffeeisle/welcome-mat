@@ -161,8 +161,44 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         ConfigManager config = plugin.getConfigManager();
         switch (args[1].toLowerCase()) {
             case "set":
-                if (args.length < 4) {
+                if (args.length < 3) {
                     sender.sendMessage(ChatColor.RED + "Usage: /wm config set <path> <value>");
+                    // Show available paths
+                    sender.sendMessage(ChatColor.GRAY + "Available paths:");
+                    List<String> commonPaths = new ArrayList<>();
+                    commonPaths.add("features.join-message");
+                    commonPaths.add("features.leave-message");
+                    commonPaths.add("sounds.join.sound");
+                    commonPaths.add("sounds.leave.sound");
+                    commonPaths.add("effects.type");
+                    commonPaths.add("message-packs.selected");
+                    
+                    for (String commonPath : commonPaths) {
+                        sender.sendMessage(ChatColor.GRAY + "• " + commonPath);
+                    }
+                    return;
+                }
+                
+                if (args.length < 4) {
+                    String path = args[2];
+                    sender.sendMessage(ChatColor.RED + "Usage: /wm config set " + path + " <value>");
+                    
+                    // Show available values based on the path
+                    if (path.endsWith(".sound")) {
+                        sender.sendMessage(ChatColor.GRAY + "Available sounds:");
+                        for (String soundName : getAllSoundNames()) {
+                            sender.sendMessage(ChatColor.GRAY + "• " + soundName);
+                        }
+                    } else if (path.startsWith("features.") || path.equals("effects.enabled")) {
+                        sender.sendMessage(ChatColor.GRAY + "Available values: true, false");
+                    } else if (path.equals("effects.type")) {
+                        sender.sendMessage(ChatColor.GRAY + "Available types: SPIRAL, HELIX, FOUNTAIN, BURST");
+                    } else if (path.equals("message-packs.selected")) {
+                        sender.sendMessage(ChatColor.GRAY + "Available packs: " + 
+                            String.join(", ", config.getAvailableMessagePacks()));
+                    } else if (path.endsWith(".volume") || path.endsWith(".pitch")) {
+                        sender.sendMessage(ChatColor.GRAY + "Recommended values: 0.5, 1.0, 1.5, 2.0 (must be between 0 and 2)");
+                    }
                     return;
                 }
                 String path = args[2];
@@ -401,27 +437,110 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3 && args[0].equalsIgnoreCase("config")) {
             List<String> paths = new ArrayList<>();
             
-            // Add common configuration paths
-            paths.addAll(plugin.getConfigManager().getKeys(""));
-            
-            // Add sound-specific paths for better navigation
-            if (args[2].toLowerCase().startsWith("sounds")) {
-                paths.add("sounds.join.sound");
-                paths.add("sounds.join.volume");
-                paths.add("sounds.join.pitch");
-                paths.add("sounds.leave.sound");
-                paths.add("sounds.leave.volume");
-                paths.add("sounds.leave.pitch");
+            if (args[1].equalsIgnoreCase("set") || args[1].equalsIgnoreCase("get")) {
+                // Add common configuration paths
+                paths.addAll(plugin.getConfigManager().getKeys(""));
+                
+                // Add feature-specific paths
+                paths.add("features.join-message");
+                paths.add("features.leave-message");
+                paths.add("features.join-title");
+                paths.add("features.join-sound");
+                paths.add("features.leave-sound");
+                paths.add("features.other-players-sounds");
+                
+                // Add sound-specific paths for better navigation
+                if (args[2].toLowerCase().startsWith("sounds") || args[2].isEmpty()) {
+                    paths.add("sounds.join.sound");
+                    paths.add("sounds.join.volume");
+                    paths.add("sounds.join.pitch");
+                    paths.add("sounds.leave.sound");
+                    paths.add("sounds.leave.volume");
+                    paths.add("sounds.leave.pitch");
+                }
+                
+                // Add effects-specific paths
+                if (args[2].toLowerCase().startsWith("effects") || args[2].isEmpty()) {
+                    paths.add("effects.enabled");
+                    paths.add("effects.type");
+                    paths.add("effects.duration");
+                    paths.add("effects.particles.primary");
+                    paths.add("effects.particles.secondary");
+                }
+                
+                // Add message-specific paths
+                if (args[2].toLowerCase().startsWith("messages") || args[2].isEmpty()) {
+                    paths.add("messages.join");
+                    paths.add("messages.leave");
+                }
+                
+                // Add titles-specific paths
+                if (args[2].toLowerCase().startsWith("titles") || args[2].isEmpty()) {
+                    paths.add("titles.join.title");
+                    paths.add("titles.join.subtitle");
+                }
+                
+                // Add message-packs paths
+                if (args[2].toLowerCase().startsWith("message-packs") || args[2].isEmpty()) {
+                    paths.add("message-packs.selected");
+                }
             }
             
             return filterCompletions(paths.toArray(new String[0]), args[2]);
         }
 
-        // Sound suggestions for sound configuration
-        if (args.length == 4 && args[0].equalsIgnoreCase("config") && 
-            args[1].equalsIgnoreCase("set") && 
-            (args[2].endsWith(".sound"))) {
-            return filterCompletions(getAllSoundNames(), args[3]);
+        // Value suggestions for configuration
+        if (args.length == 4 && args[0].equalsIgnoreCase("config") && args[1].equalsIgnoreCase("set")) {
+            String path = args[2].toLowerCase();
+            List<String> suggestions = new ArrayList<>();
+            
+            // Sound suggestions
+            if (path.endsWith(".sound")) {
+                return filterCompletions(getAllSoundNames(), args[3]);
+            }
+            
+            // Boolean suggestions
+            else if (path.startsWith("features.") || path.equals("effects.enabled")) {
+                suggestions.add("true");
+                suggestions.add("false");
+                return filterCompletions(suggestions.toArray(new String[0]), args[3]);
+            }
+            
+            // Effect type suggestions
+            else if (path.equals("effects.type")) {
+                suggestions.add("SPIRAL");
+                suggestions.add("HELIX");
+                suggestions.add("FOUNTAIN");
+                suggestions.add("BURST");
+                return filterCompletions(suggestions.toArray(new String[0]), args[3]);
+            }
+            
+            // Particle suggestions
+            else if (path.startsWith("effects.particles.")) {
+                suggestions.add("FIREWORK");
+                suggestions.add("SPELL_WITCH");
+                suggestions.add("FLAME");
+                suggestions.add("HEART");
+                suggestions.add("VILLAGER_HAPPY");
+                return filterCompletions(suggestions.toArray(new String[0]), args[3]);
+            }
+            
+            // Message pack suggestions
+            else if (path.equals("message-packs.selected")) {
+                return filterCompletions(
+                    plugin.getConfigManager().getAvailableMessagePacks().toArray(new String[0]),
+                    args[3]
+                );
+            }
+            
+            // Volume/pitch suggestions
+            else if (path.endsWith(".volume") || path.endsWith(".pitch")) {
+                suggestions.add("0.5");
+                suggestions.add("1.0");
+                suggestions.add("1.5");
+                suggestions.add("2.0");
+                return filterCompletions(suggestions.toArray(new String[0]), args[3]);
+            }
         }
 
         return completions;
