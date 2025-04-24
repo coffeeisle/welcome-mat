@@ -28,6 +28,10 @@ WelcomeMat is available on Modrinth! Click the button below to download:
   <img alt="Download on Modrinth" src="https://avatars.githubusercontent.com/u/67560307" width="60">
 </a>
 
+## 🔄 Compatibility
+
+WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.5.
+
 ## ✨ Features
 
 ### Core Features
