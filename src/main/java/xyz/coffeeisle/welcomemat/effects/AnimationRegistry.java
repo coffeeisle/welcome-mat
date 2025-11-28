@@ -24,6 +24,7 @@ public class AnimationRegistry {
     private final WelcomeMat plugin;
     private final Map<String, Animation> animations;
     private final List<String> randomPool;
+    private final Random random;
 
     public AnimationRegistry(WelcomeMat plugin) {
         this.plugin = plugin;
