@@ -11,6 +11,7 @@ import org.bukkit.command.PluginCommand;
 import xyz.coffeeisle.welcomemat.effects.AnimationRegistry;
 import xyz.coffeeisle.welcomemat.analytics.Analytics;
 import xyz.coffeeisle.welcomemat.utils.SchedulerAdapter;
+import xyz.coffeeisle.welcomemat.utils.SplashEditorManager;
 
 public class WelcomeMat extends JavaPlugin {
     private static WelcomeMat instance;
@@ -21,6 +22,7 @@ public class WelcomeMat extends JavaPlugin {
     private AnimationRegistry animationRegistry;
     private Analytics analytics;
     private SchedulerAdapter schedulerAdapter;
+    private SplashEditorManager splashEditorManager;
 
     // ANSI color codes for console
     private static final String GOLD = "\u001B[33m";
@@ -61,6 +63,7 @@ public class WelcomeMat extends JavaPlugin {
         // Initialize managers in the correct order
         this.configManager = new ConfigManager(this);
         this.languageManager = new LanguageManager(this);
+        this.splashEditorManager = new SplashEditorManager(this);
         
         // Initialize database first and verify connection
         this.databaseManager = new DatabaseManager(this);
@@ -75,6 +78,7 @@ public class WelcomeMat extends JavaPlugin {
         // Register events and commands
         getServer().getPluginManager().registerEvents(new PlayerEventListener(this), this);
         getServer().getPluginManager().registerEvents(new GUIListener(this), this);
+        getServer().getPluginManager().registerEvents(splashEditorManager, this);
         
         PluginCommand cmd = getCommand("welcomemat");
         if (cmd != null) {
@@ -126,5 +130,9 @@ public class WelcomeMat extends JavaPlugin {
 
     public SchedulerAdapter getSchedulerAdapter() {
         return schedulerAdapter;
+    }
+
+    public SplashEditorManager getSplashEditorManager() {
+        return splashEditorManager;
     }
 }

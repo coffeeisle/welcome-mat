@@ -1,4 +1,5 @@
 # Available languages: english, spanish
+messages-version: "1.3"
 selected-language: "english"
 
 # Message packs configuration
@@ -11,6 +12,9 @@ message-packs:
         - "&e%player% &ajust joined the server!"
       leave:
         - "&e%player% &chas left the server!"
+    splash:
+      title: "&6Welcome!"
+      subtitle: "&eEnjoy your stay!"
   friendly:
     name: "Friendly"
     messages:
@@ -24,6 +28,9 @@ message-packs:
         - "&7Until next time, &e%player%&7! &d👋"
         - "&7We'll miss you, &e%player%&7! Come back soon! &d💖"
         - "&e%player% &7went to take a break! &d✨"
+    splash:
+      title: "&dWelcome Back!"
+      subtitle: "&eWe're so happy you're here!"
   professional:
     name: "Professional"
     messages:
@@ -35,6 +42,9 @@ message-packs:
         - "&7[&c-&7] &e%player%"
         - "&8« &e%player% &7has disconnected"
         - "&7(&c-&7) &e%player% &7left the game"
+    splash:
+      title: "&7Welcome, Operator"
+      subtitle: "&fConnection established successfully"
   funny:
     name: "Funny"
     messages:
@@ -48,6 +58,9 @@ message-packs:
         - "&e%player% &cwas eaten by a dragon... (just kidding!)"
         - "&e%player% &chad to go touch some grass"
         - "&e%player% &cran away from their responsibilities"
+    splash:
+      title: "&aTa-da!"
+      subtitle: "&eCue the laugh track!"
   rpg:
     name: "RPG Fantasy"
     messages:
@@ -61,6 +74,9 @@ message-packs:
         - "&6⚔ &e%player% &6ventures forth to new lands"
         - "&6🏰 &e%player% &6must attend to other quests"
         - "&6📜 &eThe tale of &6%player% &epauses here"
+    splash:
+      title: "&6Hero Emerges"
+      subtitle: "&eMay your quest be glorious!"
   skyward:
     name: "Skyward"
     messages:
@@ -74,6 +90,9 @@ message-packs:
         - "&d🎈 &f%player% floated away to calm the ghastlings."
         - "&b☁ &f%player% ascended beyond the Locator Bar."
         - "&f%player% waved goodbye from a Happy Ghast cockpit."
+    splash:
+      title: "&bSkybound Arrival"
+      subtitle: "&fMind the Happy Ghast giggles!"
   copper:
     name: "Copper Age"
     messages:
@@ -87,6 +106,9 @@ message-packs:
         - "&6🛠 &e%player% went to wax their Copper gear."
         - "&6📦 &e%player% is reorganizing Copper Chests back home."
         - "&6🔶 &e%player% retreated to calibrate the Copper Golems."
+    splash:
+      title: "&6Copper Sparks"
+      subtitle: "&eShine bright, inventor!"
 
 languages:
   english:
@@ -107,8 +129,51 @@ languages:
         current: "&6Current message pack: &e%pack%"
         available: "&6Available packs: &e%packs%"
         changed: "&aMessage pack changed to: &e%pack%"
+        changed_mode_tip: "&7Now using pack messages for join, leave, and splash. Use /wm pack mode <type> <custom|pack> to change."
         invalid: "&cInvalid message pack! Available: %packs%"
         no-permission: "&cYou don't have permission to change message packs!"
+        mode:
+          usage: "&cUsage: /wm pack mode <join|leave|splash> <custom|pack>"
+          invalid_option: "&cMode must be CUSTOM or PACK."
+          invalid_target: "&cUnknown mode target. Use join, leave, or splash."
+          set: "&a%target% now use %source%."
+          target:
+            join: "&eJoin chat messages"
+            leave: "&eLeave chat messages"
+            splash: "&eSplash title/subtitle"
+          source:
+            pack: "&apack text"
+            custom: "&bcustom text"
+        overview:
+          header: "&6=== WelcomeMat Message Packs ==="
+          current: "&eCurrent pack: &f%pack%"
+          usage: "&eUsage: &f/wm pack <name> &7(apply pack)"
+          modes: "&eModes: &f/wm pack mode <join|leave|splash> <custom|pack>"
+          create: "&eCreate: &f/wm pack create <name> &7(snapshot config text)"
+          available: "&6Available packs:"
+          none: "&cNo packs defined yet."
+          entry: "&7- &e%id% &8(&f%name%&8)"
+          sources: "&6Current sources:"
+          source_line: "&e%label%&7: %source%"
+        create:
+          usage: "&cUsage: /wm pack create <friendly name>"
+          name_required: "&cPlease provide a name for the custom pack."
+          invalid_name: "&c\"%name%\" needs at least three letters or numbers."
+          exists: "&cA pack with id %id% already exists."
+          failed: "&cFailed to save the custom pack. Check console for details."
+          success: "&aCreated custom pack &e%name% &7(&f%id%&7)."
+          hint: "&7Use &f/wm pack %id% &7to select it or /wm pack mode to mix sources."
+        gui:
+          info_name: "&ePack Overview"
+          info_lore:
+            - "&7Current pack: &f%pack%"
+            - "&7Join source: %join%"
+            - "&7Leave source: %leave%"
+            - "&7Splash source: %splash%"
+            - "&7Use &f/wm pack mode <type> <custom|pack>&7 to change sources."
+            - "&7Use &f/wm pack create <name>&7 to snapshot your custom text."
+          selected: "&aCurrently Selected"
+          click: "&7Click to select"
       
       config:
         help_header: "&6══ WelcomeMat Config Help ══"
@@ -136,6 +201,28 @@ languages:
         changed: "&aLanguage changed to: &e%language%"
         invalid: "&cInvalid language! Available: %languages%"
         no_permission: "&cYou don't have permission to change the language!"
+      splash:
+        header: "&6=== Splash Screen Helper ==="
+        overview: "&7Title: &f%title%\n&7Subtitle: &f%subtitle%"
+        helper: "&7Use the buttons below or run &e/wm splash title &7or &e/wm splash subtitle&7."
+        button_title: "&a[Set new splash title]"
+        button_subtitle: "&a[Set new splash subtitle]"
+        hover_title: "&7Click to edit the main title"
+        hover_subtitle: "&7Click to edit the subtitle"
+        current_title: "&7Current title: &f%title%"
+        current_subtitle: "&7Current subtitle: &f%subtitle%"
+        players_only: "&cOnly players can edit the splash screen."
+        no_permission: "&cYou don't have permission to edit the splash screen."
+        not_player: "&cThis action must be run in-game because it opens a book."
+        started_title: "&aWe put a book in your hand. Right-click to edit the title, then click Done."
+        started_subtitle: "&aWe put a book in your hand. Right-click to edit the subtitle, then click Done."
+        edit_in_progress: "&eFinish the book you're already editing first."
+        inventory_full: "&cYour inventory is full! Free a slot before editing the splash message."
+        empty_value: "&cType something on the first page before finishing the book."
+        updated_title: "&aSplash title saved! Config reloaded automatically."
+        updated_subtitle: "&aSplash subtitle saved! Config reloaded automatically."
+        editor_instructions_title: "&0✎ Page 1 should only contain the splash title.\n&0Use & for colors and keep it short."
+        editor_instructions_subtitle: "&0✎ Page 1 should only contain the splash subtitle.\n&0Use & for colors and keep it readable."
       
       help:
         header: "&6=== WelcomeMat Help ==="
@@ -144,6 +231,7 @@ languages:
         pack: "&e/welcomemat pack [name] &f- Change message pack"
         config: "&e/welcomemat config &f- Manage configuration"
         language: "&e/welcomemat language &f- Manage language"
+        splash: "&e/welcomemat splash &f- Edit the join title/subtitle"
         gui: "&e/welcomemat gui &f- Open settings menu"
         help: "&e/welcomemat help &f- Show this help message"
       
@@ -259,8 +347,51 @@ languages:
         current: "&6Paquete de mensajes actual: &e%pack%"
         available: "&6Paquetes disponibles: &e%packs%"
         changed: "&aPaquete de mensajes cambiado a: &e%pack%"
+        changed_mode_tip: "&7Ahora usas mensajes del paquete para entrada, salida y splash. Usa /wm pack mode <tipo> <custom|pack> para cambiar."
         invalid: "&c¡Paquete inválido! Disponibles: %packs%"
         no-permission: "&c¡No tienes permiso para cambiar los paquetes de mensajes!"
+        mode:
+          usage: "&cUso: /wm pack mode <join|leave|splash> <custom|pack>"
+          invalid_option: "&cEl modo debe ser CUSTOM o PACK."
+          invalid_target: "&cObjetivo desconocido. Usa join, leave o splash."
+          set: "&a%target% ahora usan %source%."
+          target:
+            join: "&eMensajes de chat de entrada"
+            leave: "&eMensajes de chat de salida"
+            splash: "&eTítulo/Subtítulo de bienvenida"
+          source:
+            pack: "&apaquete"
+            custom: "&btexto personalizado"
+        overview:
+          header: "&6=== Paquetes de Mensajes de WelcomeMat ==="
+          current: "&ePaquete actual: &f%pack%"
+          usage: "&eUso: &f/wm pack <nombre> &7(aplicar paquete)"
+          modes: "&eModos: &f/wm pack mode <join|leave|splash> <custom|pack>"
+          create: "&eCrear: &f/wm pack create <nombre> &7(guardar texto del config)"
+          available: "&6Paquetes disponibles:"
+          none: "&cNo hay paquetes definidos aún."
+          entry: "&7- &e%id% &8(&f%name%&8)"
+          sources: "&6Fuentes actuales:"
+          source_line: "&e%label%&7: %source%"
+        create:
+          usage: "&cUso: /wm pack create <nombre descriptivo>"
+          name_required: "&cProporciona un nombre para el paquete personalizado."
+          invalid_name: "&c\"%name%\" necesita al menos tres letras o números."
+          exists: "&cYa existe un paquete con id %id%."
+          failed: "&cNo se pudo guardar el paquete. Revisa la consola para más detalles."
+          success: "&aPaquete personalizado creado: &e%name% &7(&f%id%&7)."
+          hint: "&7Usa &f/wm pack %id% &7para seleccionarlo o /wm pack mode para mezclar fuentes."
+        gui:
+          info_name: "&eResumen de Paquetes"
+          info_lore:
+            - "&7Paquete actual: &f%pack%"
+            - "&7Fuente de entrada: %join%"
+            - "&7Fuente de salida: %leave%"
+            - "&7Fuente del splash: %splash%"
+            - "&7Usa &f/wm pack mode <tipo> <custom|pack>&7 para cambiar las fuentes."
+            - "&7Usa &f/wm pack create <nombre>&7 para guardar tu texto personalizado."
+          selected: "&aActualmente seleccionado"
+          click: "&7Haz clic para seleccionar"
       
       config:
         help_header: "&6══ Ayuda de Configuración ══"
@@ -288,6 +419,28 @@ languages:
         changed: "&aIdioma cambiado a: &e%language%"
         invalid: "&c¡Idioma inválido! Disponibles: %languages%"
         no_permission: "&c¡No tienes permiso para cambiar el idioma!"
+      splash:
+        header: "&6=== Asistente de Pantalla de Bienvenida ==="
+        overview: "&7Título: &f%title%\n&7Subtítulo: &f%subtitle%"
+        helper: "&7Usa los botones de abajo o ejecuta &e/wm splash title &7o &e/wm splash subtitle&7."
+        button_title: "&a[Editar título de bienvenida]"
+        button_subtitle: "&a[Editar subtítulo de bienvenida]"
+        hover_title: "&7Haz clic para editar el título"
+        hover_subtitle: "&7Haz clic para editar el subtítulo"
+        current_title: "&7Título actual: &f%title%"
+        current_subtitle: "&7Subtítulo actual: &f%subtitle%"
+        players_only: "&cSolo los jugadores pueden editar la pantalla de bienvenida."
+        no_permission: "&cNo tienes permiso para editar la pantalla de bienvenida."
+        not_player: "&cDebes ejecutar esto dentro del juego porque abre un libro."
+        started_title: "&aTe colocamos un libro en la mano. Haz clic derecho para editar el título y pulsa Listo."
+        started_subtitle: "&aTe colocamos un libro en la mano. Haz clic derecho para editar el subtítulo y pulsa Listo."
+        edit_in_progress: "&ePrimero termina el libro que ya estás editando."
+        inventory_full: "&c¡Tu inventario está lleno! Libera un espacio antes de editar el mensaje de bienvenida."
+        empty_value: "&cEscribe algo en la primera página antes de cerrar el libro."
+        updated_title: "&a¡Título guardado! La configuración se recargó automáticamente."
+        updated_subtitle: "&a¡Subtítulo guardado! La configuración se recargó automáticamente."
+        editor_instructions_title: "&0✎ La página 1 solo debe contener el título.\n&0Usa & para colores y mantenlo corto."
+        editor_instructions_subtitle: "&0✎ La página 1 solo debe contener el subtítulo.\n&0Usa & para colores y mantenlo legible."
       
       help:
         header: "&6=== Ayuda de WelcomeMat ==="
@@ -296,6 +449,7 @@ languages:
         pack: "&e/welcomemat pack [nombre] &f- Cambiar paquete de mensajes"
         config: "&e/welcomemat config &f- Gestionar configuración"
         language: "&e/welcomemat language &f- Gestionar idioma"
+        splash: "&e/welcomemat splash &f- Editar título/subtítulo de bienvenida"
         gui: "&e/welcomemat gui &f- Abrir menú de configuración"
         help: "&e/welcomemat help &f- Mostrar este mensaje de ayuda"
       
