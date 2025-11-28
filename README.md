@@ -32,10 +32,10 @@ WelcomeMat is available on Modrinth! Click the button below to download:
 
 WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.10 and is fully tested on Bukkit/Spigot, Paper, Purpur, and Folia (regionized multithreading). The Folia build uses region-aware schedulers so the same jar runs safely on both single-threaded and regionized servers.
 
-### 🚀 What's New in v1.3.1
-- **Folia-safe animations:** Join effects now use the latest Folia entity schedulers, keeping animations responsive without tripping the watchdog on 1.21.8+.
-- **Smarter fallbacks:** If Folia ever exposes a new scheduler signature, the plugin logs the discovery and skips unsafe fallbacks instead of touching Bukkit's global scheduler.
-- **Automatic version metadata:** `plugin.yml` now receives the Gradle project version at build time, so downloads are always correctly labeled.
+### 🚀 What's New in v1.3.3
+- **Animation test polish:** `/wm animation test <name|random>` now cycles through every registered animation, making it easier to preview the expanded effect roster on live servers.
+- **Confetti Burst fix:** Folia servers no longer spam `missing required data class org.bukkit.Color`—the Confetti Burst animation now supplies proper dust color transitions and sparkles.
+- **Safe config migrations:** `config.yml` and `messages.yml` automatically back up and merge new defaults, so upgrading from older releases preserves customizations without YAML errors.
 
 ## ✨ Features
 
@@ -76,6 +76,36 @@ WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.10 and is ful
 | Import/Export | Share configurations between servers | 🚧 Planned |
 | Auto-updates | Automatic plugin updates | 🚧 Planned |
 | Performance Optimization | Improved resource usage | ✅ Implemented |
+
+## 🕹 Command Reference
+
+| Command | Permission | Description |
+|---------|------------|-------------|
+| `/welcomemat` or `/wm` | (default) | Shows the interactive help panel with quick-click shortcuts.
+| `/wm gui` | `welcomemat.config` | Opens the in-game Settings GUI for packs, languages, sound profiles, and effects.
+| `/wm sound` | `welcomemat.sound.toggle` | Toggles join/leave sounds for the executing player.
+| `/wm effects` | `welcomemat.effects` | Enables or disables join effects for the executing player.
+| `/wm animation` | `welcomemat.animation` | Opens the animation status view; supports `list`, `set <id|pack|random>`, and `test <id|random>`.
+| `/wm pack` | `welcomemat.pack` | Selects a message pack, switches pack modes, or creates new packs with `/wm pack create <Friendly Name>`.
+| `/wm splash <title|subtitle> [edit]` | `welcomemat.config` | Views or edits the welcome title/subtitle using clickable chat controls.
+| `/wm language <english|spanish>` | `welcomemat.language` | Switches the active language bundle.
+| `/wm config <get|set|list>` | `welcomemat.config` | Reads or writes any config path. Sound paths preview audio instantly for players.
+| `/wm reload` | `welcomemat.reload` | Reloads `config.yml`, `messages.yml`, and re-runs the migration helper.
+
+### Command Examples
+
+```mcfunction
+# Preview the latest particle work without relogging
+/wm animation test random
+
+# Force the Copper Age message pack while keeping custom splash text
+/wm pack copper_age
+/wm pack mode splash custom
+
+# Update the default join sound and immediately preview it
+/wm config set sounds.join.sound ENTITY_PLAYER_LEVELUP
+/wm config set sounds.join.pitch 1.3
+```
 
 ## 📚 Documentation
 

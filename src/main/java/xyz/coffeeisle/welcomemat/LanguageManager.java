@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import xyz.coffeeisle.welcomemat.utils.ConfigFileMigrator;
 import xyz.coffeeisle.welcomemat.utils.VersionUtils;
 
 public class LanguageManager {
@@ -40,10 +41,7 @@ public class LanguageManager {
 
     public void loadMessages() {
         messagesFile = new File(plugin.getDataFolder(), "messages.yml");
-        if (!messagesFile.exists()) {
-            plugin.saveResource("messages.yml", false);
-        }
-
+        ConfigFileMigrator.migrateIfOutdated(plugin, messagesFile, "messages.yml", "messages-version", MESSAGES_VERSION);
         messages = YamlConfiguration.loadConfiguration(messagesFile);
         
         // Load default messages from jar for fallback
@@ -54,19 +52,10 @@ public class LanguageManager {
             messages.setDefaults(defaultMessages);
         }
 
-        migrateMessagesFile();
         loadCustomPacks();
 
         currentLanguage = messages.getString("selected-language", "english");
         languageCache.clear();
-    }
-
-    private void migrateMessagesFile() {
-        String detectedVersion = messages.getString("messages-version", "0");
-        if (VersionUtils.compare(detectedVersion, MESSAGES_VERSION) < 0) {
-            messages.set("messages-version", MESSAGES_VERSION);
-            saveYaml(messages, messagesFile, "messages.yml");
-        }
     }
 
     private void loadCustomPacks() {
@@ -258,6 +247,14 @@ public class LanguageManager {
             return null;
         }
         return section.getString("splash.subtitle");
+    }
+
+    public String getPackAnimation(String packId) {
+        ConfigurationSection section = resolvePackSection(packId);
+        if (section == null) {
+            return null;
+        }
+        return section.getString("animation");
     }
 
     public boolean saveCustomPack(

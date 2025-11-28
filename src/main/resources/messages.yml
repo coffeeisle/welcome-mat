@@ -7,6 +7,7 @@ message-packs:
   # Available packs: default, friendly, professional, funny, rpg, skyward, copper
   default:
     name: "Default"
+    animation: "fire_spiral"
     messages:
       join:
         - "&e%player% &ajust joined the server!"
@@ -17,6 +18,7 @@ message-packs:
       subtitle: "&eEnjoy your stay!"
   friendly:
     name: "Friendly"
+    animation: "heart_bloom"
     messages:
       join:
         - "&d✨ &e%player% &ahas joined the party! &d✨"
@@ -33,6 +35,7 @@ message-packs:
       subtitle: "&eWe're so happy you're here!"
   professional:
     name: "Professional"
+    animation: "data_stream"
     messages:
       join:
         - "&7[&a+&7] &e%player%"
@@ -47,6 +50,7 @@ message-packs:
       subtitle: "&fConnection established successfully"
   funny:
     name: "Funny"
+    animation: "confetti_burst"
     messages:
       join:
         - "&a%player% &efell from the sky!"
@@ -63,6 +67,7 @@ message-packs:
       subtitle: "&eCue the laugh track!"
   rpg:
     name: "RPG Fantasy"
+    animation: "rune_circle"
     messages:
       join:
         - "&6⚔ &e%player% &6has entered the realm"
@@ -79,6 +84,7 @@ message-packs:
       subtitle: "&eMay your quest be glorious!"
   skyward:
     name: "Skyward"
+    animation: "skyward_cascade"
     messages:
       join:
         - "&b☁ &f%player% rode in on a Happy Ghast escort!"
@@ -95,6 +101,7 @@ message-packs:
       subtitle: "&fMind the Happy Ghast giggles!"
   copper:
     name: "Copper Age"
+    animation: "copper_golem"
     messages:
       join:
         - "&6⚙ &e%player% marched in with a Copper Golem squad."
@@ -232,6 +239,7 @@ languages:
         config: "&e/welcomemat config &f- Manage configuration"
         language: "&e/welcomemat language &f- Manage language"
         splash: "&e/welcomemat splash &f- Edit the join title/subtitle"
+        animation: "&e/welcomemat animation &f- Choose your join animation"
         gui: "&e/welcomemat gui &f- Open settings menu"
         help: "&e/welcomemat help &f- Show this help message"
       
@@ -257,6 +265,33 @@ languages:
         disabled: "&eJoin effects disabled!"
         no-permission: "&cYou don't have permission to toggle effects!"
         players-only: "&cThis command can only be used by players!"
+        animation:
+          header: "&6=== Animation Effects ==="
+          current_pack: "&eYou are following the pack animation (&f%animation%&e)."
+          current_custom: "&eYour selected animation: &f%animation%&e."
+          current_random: "&eYou'll receive a &frandom &eanimation each join."
+          usage: "&7Use &f/wm animation list&7, &f/wm animation set <pack|random|id>&7, or &f/wm animation test <id>&7."
+          list_header: "&6Available animations:"
+          list_entry: "&7- &e%id% &8(&f%name%&8)"
+          list_pack: "&7- &epack &8(&fFollow the pack default&8)"
+          list_random: "&7- &erandom &8(&fSurprise me!&8)"
+          list_hint: "&7Preview any animation with &f/wm animation test <id>&7."
+          list_none: "&cNo animations are registered."
+          set_pack: "&aYou'll now follow the pack animation."
+          set_random: "&aYou'll now get a random animation."
+          set_custom: "&aAnimation set to &f%animation%&a."
+          invalid: "&cUnknown animation. Use /wm animation list."
+          describe_known: "&f%name% &8(&7%id%&8)"
+          describe_missing: "&c%id% &7(removed)"
+          describe_unknown: "&7Not configured"
+          test_usage: "&7Usage: &f/wm animation test <pack|random|id>"
+          test_success: "&aPreviewing &f%animation%&a."
+          test_pack: "&aPreviewing pack animation &f%animation%&a."
+          test_random: "&aPreviewing random animation: &f%animation%&a."
+          test_invalid: '&cUnknown animation "%id%". Use /wm animation list.'
+          test_random_unavailable: "&cThere are no random animations available."
+          test_pack_unavailable: "&cPack animation is not configured right now."
+          test_failed: "&cUnable to preview that animation."
 
   spanish:
     name: "Español"
@@ -275,7 +310,6 @@ languages:
           - "&d🌟 &a¡El increíble &e%player% &ase ha unido! &d🌟"
         leave:
           - "&e%player% &7tuvo que irse... &c¡Hasta pronto! &d💕"
-          - "&7¡Hasta la próxima, &e%player%&7! &d👋"
           - "&7¡Te extrañaremos, &e%player%&7! ¡Vuelve pronto! &d💖"
           - "&e%player% &7¡se fue a tomar un descanso! &d✨"
       professional:
@@ -450,6 +484,7 @@ languages:
         config: "&e/welcomemat config &f- Gestionar configuración"
         language: "&e/welcomemat language &f- Gestionar idioma"
         splash: "&e/welcomemat splash &f- Editar título/subtítulo de bienvenida"
+        animation: "&e/welcomemat animation &f- Elegir tu animación de entrada"
         gui: "&e/welcomemat gui &f- Abrir menú de configuración"
         help: "&e/welcomemat help &f- Mostrar este mensaje de ayuda"
       
@@ -475,4 +510,31 @@ languages:
         disabled: "&e¡Efectos de entrada desactivados!"
         no-permission: "&c¡No tienes permiso para cambiar los efectos!"
         players-only: "&c¡Este comando solo puede ser usado por jugadores!"
+        animation:
+          header: "&6=== Efectos de Animación ==="
+          current_pack: "&eSigues la animación del paquete (&f%animation%&e)."
+          current_custom: "&eAnimación seleccionada: &f%animation%&e."
+          current_random: "&eRecibirás una animación &faleatoria &een cada entrada."
+          usage: "&7Usa &f/wm animation list&7, &f/wm animation set <pack|random|id>&7 o &f/wm animation test <id>&7."
+          list_header: "&6Animaciones disponibles:"
+          list_entry: "&7- &e%id% &8(&f%name%&8)"
+          list_pack: "&7- &epack &8(&fSeguir la animación del paquete&8)"
+          list_random: "&7- &erandom &8(&f¡Sorpréndeme!&8)"
+          list_hint: "&7Visualiza cualquiera con &f/wm animation test <id>&7."
+          list_none: "&cNo hay animaciones registradas."
+          set_pack: "&aAhora seguirás la animación del paquete."
+          set_random: "&aAhora obtendrás una animación aleatoria."
+          set_custom: "&aAnimación establecida en &f%animation%&a."
+          invalid: "&cAnimación desconocida. Usa /wm animation list."
+          describe_known: "&f%name% &8(&7%id%&8)"
+          describe_missing: "&c%id% &7(eliminada)"
+          describe_unknown: "&7Sin configurar"
+          test_usage: "&7Uso: &f/wm animation test <pack|random|id>"
+          test_success: "&aMostrando &f%animation%&a."
+          test_pack: "&aMostrando la animación del paquete &f%animation%&a."
+          test_random: "&aMostrando una animación aleatoria: &f%animation%&a."
+          test_invalid: '&cAnimación desconocida "%id%". Usa /wm animation list.'
+          test_random_unavailable: "&cNo hay animaciones aleatorias disponibles."
+          test_pack_unavailable: "&cLa animación del paquete no está configurada ahora."
+          test_failed: "&cNo se pudo previsualizar esa animación."
 
