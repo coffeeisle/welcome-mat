@@ -73,6 +73,7 @@ public class ConfigManager {
         }
 
         boolean movedLegacyData = false;
+        boolean legacySaved = true;
         File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
         if (!messagesFile.exists()) {
             plugin.saveResource("messages.yml", false);
@@ -106,7 +107,11 @@ public class ConfigManager {
                 messagesYaml.save(messagesFile);
                 plugin.getLogger().info("Migrated legacy message packs from config.yml to messages.yml");
             } catch (IOException e) {
+                legacySaved = false;
                 plugin.getLogger().severe("Failed to migrate legacy message packs: " + e.getMessage());
+            }
+            if (!legacySaved) {
+                return false;
             }
         }
 
