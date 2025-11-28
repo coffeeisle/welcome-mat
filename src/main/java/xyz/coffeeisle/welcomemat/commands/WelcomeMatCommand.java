@@ -11,6 +11,8 @@ import xyz.coffeeisle.welcomemat.database.DatabaseManager;
 import xyz.coffeeisle.welcomemat.LanguageManager;
 import xyz.coffeeisle.welcomemat.gui.SettingsGUI;
 import xyz.coffeeisle.welcomemat.utils.SplashEditorManager;
+import xyz.coffeeisle.welcomemat.effects.AnimationRegistry;
+import xyz.coffeeisle.welcomemat.effects.animations.Animation;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -20,6 +22,7 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -61,6 +64,9 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 break;
             case "language":
                 handleLanguage(sender, args);
+                break;
+            case "animation":
+                handleAnimationCommand(sender, args);
                 break;
             case "gui":
                 if (!(sender instanceof Player)) {
@@ -681,12 +687,142 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         playToggleSound(player);
     }
 
+    private void handleAnimationCommand(CommandSender sender, String[] args) {
+        LanguageManager lang = plugin.getLanguageManager();
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(lang.getMessage("effects.players_only"));
+            return;
+        }
+
+        Player player = (Player) sender;
+        if (!player.hasPermission("welcomemat.animation")) {
+            player.sendMessage(lang.getMessage("effects.no_permission"));
+            return;
+        }
+
+        if (!plugin.getConfig().getBoolean("effects.enabled")) {
+            player.sendMessage(lang.getMessage("effects.disabled"));
+            return;
+        }
+
+        AnimationRegistry registry = plugin.getAnimationRegistry();
+        if (registry == null) {
+            player.sendMessage(lang.getMessage("effects.animation.list_none"));
+            return;
+        }
+
+        DatabaseManager db = plugin.getDatabaseManager();
+        String preference = db.getAnimationPreference(player.getUniqueId());
+
+        if (args.length == 1) {
+            sendAnimationStatus(player, registry, preference);
+            return;
+        }
+
+        String sub = args[1].toLowerCase();
+        switch (sub) {
+            case "list":
+                sendAnimationList(player, registry);
+                return;
+            case "set":
+                if (args.length < 3) {
+                    player.sendMessage(lang.getMessage("effects.animation.usage"));
+                    return;
+                }
+                applyAnimationSelection(player, registry, args[2]);
+                return;
+            default:
+                applyAnimationSelection(player, registry, args[1]);
+        }
+    }
+
+    private void sendAnimationStatus(Player player, AnimationRegistry registry, String preference) {
+        LanguageManager lang = plugin.getLanguageManager();
+        if (preference == null || DatabaseManager.ANIMATION_FOLLOW_PACK.equalsIgnoreCase(preference)) {
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("animation", describeAnimation(registry, plugin.getConfigManager().getEffectiveAnimationId()));
+            player.sendMessage(lang.getMessage("effects.animation.current_pack", placeholders));
+        } else if (DatabaseManager.ANIMATION_RANDOM.equalsIgnoreCase(preference)) {
+            player.sendMessage(lang.getMessage("effects.animation.current_random"));
+        } else {
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("animation", describeAnimation(registry, preference));
+            player.sendMessage(lang.getMessage("effects.animation.current_custom", placeholders));
+        }
+        player.sendMessage(lang.getMessage("effects.animation.usage"));
+    }
+
+    private void sendAnimationList(Player player, AnimationRegistry registry) {
+        LanguageManager lang = plugin.getLanguageManager();
+        List<Animation> animations = registry.getRegisteredAnimations();
+        if (animations.isEmpty()) {
+            player.sendMessage(lang.getMessage("effects.animation.list_none"));
+            return;
+        }
+
+        player.sendMessage(lang.getMessage("effects.animation.list_header"));
+        player.sendMessage(lang.getMessage("effects.animation.list_pack"));
+        player.sendMessage(lang.getMessage("effects.animation.list_random"));
+
+        animations.sort(Comparator.comparing(Animation::getDisplayName, String.CASE_INSENSITIVE_ORDER));
+        for (Animation animation : animations) {
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("id", animation.getName());
+            placeholders.put("name", animation.getDisplayName());
+            player.sendMessage(lang.getMessage("effects.animation.list_entry", placeholders));
+        }
+    }
+
+    private void applyAnimationSelection(Player player, AnimationRegistry registry, String selectionRaw) {
+        LanguageManager lang = plugin.getLanguageManager();
+        if (selectionRaw == null || selectionRaw.isEmpty()) {
+            player.sendMessage(lang.getMessage("effects.animation.usage"));
+            return;
+        }
+
+        String selection = selectionRaw.toLowerCase();
+        DatabaseManager db = plugin.getDatabaseManager();
+
+        if (selection.equals("pack") || selection.equals("default")) {
+            db.setAnimationPreference(player.getUniqueId(), DatabaseManager.ANIMATION_FOLLOW_PACK);
+            player.sendMessage(lang.getMessage("effects.animation.set_pack"));
+            return;
+        }
+
+        if (selection.equals("random")) {
+            db.setAnimationPreference(player.getUniqueId(), DatabaseManager.ANIMATION_RANDOM);
+            player.sendMessage(lang.getMessage("effects.animation.set_random"));
+            return;
+        }
+
+        if (!registry.hasAnimation(selection)) {
+            player.sendMessage(lang.getMessage("effects.animation.invalid"));
+            return;
+        }
+
+        db.setAnimationPreference(player.getUniqueId(), selection);
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("animation", describeAnimation(registry, selection));
+        player.sendMessage(lang.getMessage("effects.animation.set_custom", placeholders));
+    }
+
+    private String describeAnimation(AnimationRegistry registry, String animationId) {
+        if (animationId == null || animationId.isEmpty()) {
+            return "unknown";
+        }
+        Animation animation = registry.getAnimation(animationId);
+        if (animation == null) {
+            return animationId;
+        }
+        return animation.getDisplayName() + " (" + animation.getName() + ")";
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
-            String[] commands = {"reload", "sound", "pack", "config", "help", "language", "gui", "splash"};
+            String[] commands = {"reload", "sound", "pack", "config", "help", "language", "gui", "splash", "animation"};
             return filterCompletions(commands, args[0]);
         }
 
@@ -706,7 +842,23 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                     return filterCompletions(new String[]{"english", "spanish"}, args[1]);
                 case "splash":
                     return filterCompletions(new String[]{"title", "subtitle"}, args[1]);
+                case "animation":
+                    List<String> animationOptions = new ArrayList<>();
+                    animationOptions.add("list");
+                    animationOptions.add("set");
+                    animationOptions.add("pack");
+                    animationOptions.add("random");
+                    animationOptions.addAll(plugin.getAnimationRegistry().getAvailableAnimations());
+                    return filterCompletions(animationOptions.toArray(new String[0]), args[1]);
             }
+        }
+
+        if (args.length == 3 && args[0].equalsIgnoreCase("animation") && args[1].equalsIgnoreCase("set")) {
+            List<String> selections = new ArrayList<>();
+            selections.add("pack");
+            selections.add("random");
+            selections.addAll(plugin.getAnimationRegistry().getAvailableAnimations());
+            return filterCompletions(selections.toArray(new String[0]), args[2]);
         }
 
         if (args.length == 3 && args[0].equalsIgnoreCase("pack") && args[1].equalsIgnoreCase("mode")) {
