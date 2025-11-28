@@ -81,14 +81,21 @@ public class AnimationRegistry {
     }
 
     public boolean playRandomAnimation(Player player) {
-        if (randomPool.isEmpty()) {
+        String id = pickRandomAnimationId();
+        if (id == null) {
             return false;
         }
-        String id = randomPool.get(random.nextInt(randomPool.size()));
         return playAnimation(player, id);
     }
 
     public List<Animation> getRegisteredAnimations() {
         return new ArrayList<>(animations.values());
+    }
+
+    public String pickRandomAnimationId() {
+        if (randomPool.isEmpty()) {
+            return null;
+        }
+        return randomPool.get(random.nextInt(randomPool.size()));
     }
 }
