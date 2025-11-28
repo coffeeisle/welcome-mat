@@ -49,7 +49,6 @@ public class SplashEditorManager implements Listener {
 
         ItemStack editorBook = createEditorBook(field);
         player.getInventory().setItemInMainHand(editorBook);
-        player.openBook(editorBook);
         activeEdits.put(uuid, field);
 
         player.sendMessage(lang.getMessage(field == SplashField.TITLE ?
