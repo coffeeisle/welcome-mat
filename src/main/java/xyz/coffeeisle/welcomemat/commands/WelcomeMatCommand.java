@@ -237,7 +237,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
             leaveMessages = Collections.singletonList("&e%player% &chas left the server!");
         }
 
-        languageManager.saveCustomPack(
+        boolean saved = languageManager.saveCustomPack(
             packId,
             rawName,
             joinMessages,
@@ -247,6 +247,11 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
             config.getRawJoinSubtitle(),
             sender.getName()
         );
+
+        if (!saved) {
+            sender.sendMessage(ChatColor.RED + "Failed to save the custom pack. Check console for details.");
+            return;
+        }
 
         sender.sendMessage(ChatColor.GREEN + "Created custom pack \"" + rawName + "\" (" + packId + ").");
         sender.sendMessage(ChatColor.GRAY + "Use /wm pack " + packId + " to select it, or /wm pack mode to mix pack/custom sources.");
