@@ -29,3 +29,9 @@ permissions:
   welcomemat.language:
     description: Allows changing the plugin language
     default: op
+  welcomemat.effects:
+    description: Allows toggling personal join effects
+    default: true
+  welcomemat.animation:
+    description: Allows selecting a custom join animation
+    default: true

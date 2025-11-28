@@ -239,6 +239,7 @@ languages:
         config: "&e/welcomemat config &f- Manage configuration"
         language: "&e/welcomemat language &f- Manage language"
         splash: "&e/welcomemat splash &f- Edit the join title/subtitle"
+        animation: "&e/welcomemat animation &f- Choose your join animation"
         gui: "&e/welcomemat gui &f- Open settings menu"
         help: "&e/welcomemat help &f- Show this help message"
       
@@ -472,6 +473,7 @@ languages:
         config: "&e/welcomemat config &f- Gestionar configuración"
         language: "&e/welcomemat language &f- Gestionar idioma"
         splash: "&e/welcomemat splash &f- Editar título/subtítulo de bienvenida"
+        animation: "&e/welcomemat animation &f- Elegir tu animación de entrada"
         gui: "&e/welcomemat gui &f- Abrir menú de configuración"
         help: "&e/welcomemat help &f- Mostrar este mensaje de ayuda"
       

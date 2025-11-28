@@ -1033,6 +1033,9 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         if (sender.hasPermission("welcomemat.sound.toggle")) {
             sender.sendMessage(lang.getMessage("help.sound"));
         }
+        if (sender.hasPermission("welcomemat.animation")) {
+            sender.sendMessage(lang.getMessage("help.animation"));
+        }
         if (sender.hasPermission("welcomemat.pack")) {
             sender.sendMessage(lang.getMessage("help.pack"));
         }
