@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'xyz.coffeeisle'
-version = '1.3.1'
+version = '1.3.2'
 description = 'A friendly way to roll out the welcome mat for players.'
 
 repositories {
