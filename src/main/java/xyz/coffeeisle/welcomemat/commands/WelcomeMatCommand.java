@@ -131,8 +131,9 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handlePack(CommandSender sender, String[] args) {
+        LanguageManager lang = plugin.getLanguageManager();
         if (!sender.hasPermission("welcomemat.pack")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to change message packs!");
+            sender.sendMessage(lang.getMessage("pack.no-permission"));
             return;
         }
 
@@ -157,16 +158,21 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
             config.setUsePackForJoinMessages(true);
             config.setUsePackForLeaveMessages(true);
             config.setUsePackForSplash(true);
-            sender.sendMessage(ChatColor.GREEN + "Message pack changed to: " + pack);
-            sender.sendMessage(ChatColor.GRAY + "(Now using pack messages for join, leave, and splash. Use /wm pack mode <type> <custom|pack> to change.)");
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("pack", pack);
+            sender.sendMessage(lang.getMessage("pack.changed", placeholders));
+            sender.sendMessage(lang.getMessage("pack.changed_mode_tip"));
         } else {
-            sender.sendMessage(ChatColor.RED + "Invalid message pack! Use /wm pack to see available packs.");
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("packs", String.join(", ", lang.getMessagePackIds()));
+            sender.sendMessage(lang.getMessage("pack.invalid", placeholders));
         }
     }
 
     private void handlePackMode(CommandSender sender, String[] args) {
+        LanguageManager lang = plugin.getLanguageManager();
         if (args.length < 4) {
-            sender.sendMessage(ChatColor.RED + "Usage: /wm pack mode <join|leave|splash> <custom|pack>");
+            sender.sendMessage(lang.getMessage("pack.mode.usage"));
             return;
         }
 
@@ -178,7 +184,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         } else if (mode.equals("custom") || mode.equals("off")) {
             usePack = false;
         } else {
-            sender.sendMessage(ChatColor.RED + "Mode must be CUSTOM or PACK.");
+            sender.sendMessage(lang.getMessage("pack.mode.invalid_option"));
             return;
         }
 
@@ -186,42 +192,46 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         switch (target) {
             case "join":
                 config.setUsePackForJoinMessages(usePack);
-                sender.sendMessage(ChatColor.GREEN + "Join chat messages will now use " + (usePack ? "the current pack." : "custom text from config.yml."));
+                sender.sendMessage(describeModeChange(lang, "pack.mode.target.join", usePack));
                 break;
             case "leave":
                 config.setUsePackForLeaveMessages(usePack);
-                sender.sendMessage(ChatColor.GREEN + "Leave chat messages will now use " + (usePack ? "the current pack." : "custom text from config.yml."));
+                sender.sendMessage(describeModeChange(lang, "pack.mode.target.leave", usePack));
                 break;
             case "splash":
                 config.setUsePackForSplash(usePack);
-                sender.sendMessage(ChatColor.GREEN + "Splash title/subtitle will now use " + (usePack ? "the current pack." : "custom text from config.yml."));
+                sender.sendMessage(describeModeChange(lang, "pack.mode.target.splash", usePack));
                 break;
             default:
-                sender.sendMessage(ChatColor.RED + "Unknown mode target. Use join, leave, or splash.");
+                sender.sendMessage(lang.getMessage("pack.mode.invalid_target"));
         }
     }
 
     private void handlePackCreate(CommandSender sender, String[] args) {
+        LanguageManager lang = plugin.getLanguageManager();
         if (args.length < 3) {
-            sender.sendMessage(ChatColor.RED + "Usage: /wm pack create <friendly name>");
+            sender.sendMessage(lang.getMessage("pack.create.usage"));
             return;
         }
 
         String rawName = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
         if (rawName.isEmpty()) {
-            sender.sendMessage(ChatColor.RED + "Please provide a name for the custom pack.");
+            sender.sendMessage(lang.getMessage("pack.create.name_required"));
             return;
         }
 
         String packId = normalizePackId(rawName);
         if (packId.length() < 3) {
-            sender.sendMessage(ChatColor.RED + "Pack names must include at least three alphanumeric characters.");
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("name", rawName);
+            sender.sendMessage(lang.getMessage("pack.create.invalid_name", placeholders));
             return;
         }
 
-        LanguageManager languageManager = plugin.getLanguageManager();
-        if (languageManager.getMessagePackIds().contains(packId)) {
-            sender.sendMessage(ChatColor.RED + "A pack with that id already exists: " + packId);
+        if (lang.getMessagePackIds().contains(packId)) {
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("id", packId);
+            sender.sendMessage(lang.getMessage("pack.create.exists", placeholders));
             return;
         }
 
@@ -237,7 +247,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
             leaveMessages = Collections.singletonList("&e%player% &chas left the server!");
         }
 
-        boolean saved = languageManager.saveCustomPack(
+        boolean saved = plugin.getLanguageManager().saveCustomPack(
             packId,
             rawName,
             joinMessages,
@@ -249,46 +259,63 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         );
 
         if (!saved) {
-            sender.sendMessage(ChatColor.RED + "Failed to save the custom pack. Check console for details.");
+            sender.sendMessage(lang.getMessage("pack.create.failed"));
             return;
         }
 
-        sender.sendMessage(ChatColor.GREEN + "Created custom pack \"" + rawName + "\" (" + packId + ").");
-        sender.sendMessage(ChatColor.GRAY + "Use /wm pack " + packId + " to select it, or /wm pack mode to mix pack/custom sources.");
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("name", rawName);
+        placeholders.put("id", packId);
+        sender.sendMessage(lang.getMessage("pack.create.success", placeholders));
+        placeholders.clear();
+        placeholders.put("id", packId);
+        sender.sendMessage(lang.getMessage("pack.create.hint", placeholders));
     }
 
     private void sendPackOverview(CommandSender sender) {
         ConfigManager config = plugin.getConfigManager();
         LanguageManager lang = plugin.getLanguageManager();
-
-        sender.sendMessage(ChatColor.GOLD + "=== WelcomeMat Message Packs ===");
-        sender.sendMessage(ChatColor.YELLOW + "Current pack: " + ChatColor.WHITE + config.getCurrentMessagePack());
-        sender.sendMessage(ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/wm pack <name>" + ChatColor.GRAY + " (apply pack)");
-        sender.sendMessage(ChatColor.YELLOW + "Modes: " + ChatColor.WHITE + "/wm pack mode <join|leave|splash> <custom|pack>");
-        sender.sendMessage(ChatColor.YELLOW + "Create: " + ChatColor.WHITE + "/wm pack create <name>" + ChatColor.GRAY + " (snapshot config text)");
+        Map<String, String> placeholders = new HashMap<>();
+        sender.sendMessage(lang.getMessage("pack.overview.header"));
+        placeholders.put("pack", config.getCurrentMessagePack());
+        sender.sendMessage(lang.getMessage("pack.overview.current", placeholders));
+        sender.sendMessage(lang.getMessage("pack.overview.usage"));
+        sender.sendMessage(lang.getMessage("pack.overview.modes"));
+        sender.sendMessage(lang.getMessage("pack.overview.create"));
 
         sender.sendMessage("");
-        sender.sendMessage(ChatColor.GOLD + "Available packs:");
+        sender.sendMessage(lang.getMessage("pack.overview.available"));
         List<String> packs = lang.getMessagePackIds();
         if (packs.isEmpty()) {
-            sender.sendMessage(ChatColor.RED + "No packs defined in messages.yml.");
+            sender.sendMessage(lang.getMessage("pack.overview.none"));
         } else {
             for (String id : packs) {
-                sender.sendMessage(ChatColor.GRAY + " - " + ChatColor.YELLOW + id + ChatColor.DARK_GRAY + " (" + lang.getMessagePackDisplayName(id) + ")");
+                placeholders.clear();
+                placeholders.put("id", id);
+                placeholders.put("name", lang.getMessagePackDisplayName(id));
+                sender.sendMessage(lang.getMessage("pack.overview.entry", placeholders));
             }
         }
 
         sender.sendMessage("");
-        sender.sendMessage(ChatColor.GOLD + "Current sources:");
-        sender.sendMessage(describePackSource("Join", config.usePackForJoinMessages()));
-        sender.sendMessage(describePackSource("Leave", config.usePackForLeaveMessages()));
-        sender.sendMessage(describePackSource("Splash", config.usePackForSplash()));
+        sender.sendMessage(lang.getMessage("pack.overview.sources"));
+        sender.sendMessage(describePackSource(lang, "pack.mode.target.join", config.usePackForJoinMessages()));
+        sender.sendMessage(describePackSource(lang, "pack.mode.target.leave", config.usePackForLeaveMessages()));
+        sender.sendMessage(describePackSource(lang, "pack.mode.target.splash", config.usePackForSplash()));
     }
 
-    private String describePackSource(String label, boolean usingPack) {
-        return ChatColor.YELLOW + label + ChatColor.GRAY + ": " + (usingPack
-            ? ChatColor.GREEN + "pack"
-            : ChatColor.AQUA + "custom");
+    private String describePackSource(LanguageManager lang, String targetKey, boolean usingPack) {
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("label", lang.getMessage(targetKey));
+        placeholders.put("source", lang.getMessage(usingPack ? "pack.mode.source.pack" : "pack.mode.source.custom"));
+        return lang.getMessage("pack.overview.source_line", placeholders);
+    }
+
+    private String describeModeChange(LanguageManager lang, String targetKey, boolean usingPack) {
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("target", lang.getMessage(targetKey));
+        placeholders.put("source", lang.getMessage(usingPack ? "pack.mode.source.pack" : "pack.mode.source.custom"));
+        return lang.getMessage("pack.mode.set", placeholders);
     }
 
     private void handleConfig(CommandSender sender, String[] args) {

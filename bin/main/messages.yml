@@ -129,8 +129,40 @@ languages:
         current: "&6Current message pack: &e%pack%"
         available: "&6Available packs: &e%packs%"
         changed: "&aMessage pack changed to: &e%pack%"
+        changed_mode_tip: "&7Now using pack messages for join, leave, and splash. Use /wm pack mode <type> <custom|pack> to change."
         invalid: "&cInvalid message pack! Available: %packs%"
         no-permission: "&cYou don't have permission to change message packs!"
+        mode:
+          usage: "&cUsage: /wm pack mode <join|leave|splash> <custom|pack>"
+          invalid_option: "&cMode must be CUSTOM or PACK."
+          invalid_target: "&cUnknown mode target. Use join, leave, or splash."
+          set: "&a%target% now use %source%."
+          target:
+            join: "&eJoin chat messages"
+            leave: "&eLeave chat messages"
+            splash: "&eSplash title/subtitle"
+          source:
+            pack: "&apack text"
+            custom: "&bcustom text"
+        overview:
+          header: "&6=== WelcomeMat Message Packs ==="
+          current: "&eCurrent pack: &f%pack%"
+          usage: "&eUsage: &f/wm pack <name> &7(apply pack)"
+          modes: "&eModes: &f/wm pack mode <join|leave|splash> <custom|pack>"
+          create: "&eCreate: &f/wm pack create <name> &7(snapshot config text)"
+          available: "&6Available packs:"
+          none: "&cNo packs defined yet."
+          entry: "&7- &e%id% &8(&f%name%&8)"
+          sources: "&6Current sources:"
+          source_line: "&e%label%&7: %source%"
+        create:
+          usage: "&cUsage: /wm pack create <friendly name>"
+          name_required: "&cPlease provide a name for the custom pack."
+          invalid_name: "&c\"%name%\" needs at least three letters or numbers."
+          exists: "&cA pack with id %id% already exists."
+          failed: "&cFailed to save the custom pack. Check console for details."
+          success: "&aCreated custom pack &e%name% &7(&f%id%&7)."
+          hint: "&7Use &f/wm pack %id% &7to select it or /wm pack mode to mix sources."
       
       config:
         help_header: "&6══ WelcomeMat Config Help ══"
@@ -303,8 +335,40 @@ languages:
         current: "&6Paquete de mensajes actual: &e%pack%"
         available: "&6Paquetes disponibles: &e%packs%"
         changed: "&aPaquete de mensajes cambiado a: &e%pack%"
+        changed_mode_tip: "&7Ahora usas mensajes del paquete para entrada, salida y splash. Usa /wm pack mode <tipo> <custom|pack> para cambiar."
         invalid: "&c¡Paquete inválido! Disponibles: %packs%"
         no-permission: "&c¡No tienes permiso para cambiar los paquetes de mensajes!"
+        mode:
+          usage: "&cUso: /wm pack mode <join|leave|splash> <custom|pack>"
+          invalid_option: "&cEl modo debe ser CUSTOM o PACK."
+          invalid_target: "&cObjetivo desconocido. Usa join, leave o splash."
+          set: "&a%target% ahora usan %source%."
+          target:
+            join: "&eMensajes de chat de entrada"
+            leave: "&eMensajes de chat de salida"
+            splash: "&eTítulo/Subtítulo de bienvenida"
+          source:
+            pack: "&apaquete"
+            custom: "&btexto personalizado"
+        overview:
+          header: "&6=== Paquetes de Mensajes de WelcomeMat ==="
+          current: "&ePaquete actual: &f%pack%"
+          usage: "&eUso: &f/wm pack <nombre> &7(aplicar paquete)"
+          modes: "&eModos: &f/wm pack mode <join|leave|splash> <custom|pack>"
+          create: "&eCrear: &f/wm pack create <nombre> &7(guardar texto del config)"
+          available: "&6Paquetes disponibles:"
+          none: "&cNo hay paquetes definidos aún."
+          entry: "&7- &e%id% &8(&f%name%&8)"
+          sources: "&6Fuentes actuales:"
+          source_line: "&e%label%&7: %source%"
+        create:
+          usage: "&cUso: /wm pack create <nombre descriptivo>"
+          name_required: "&cProporciona un nombre para el paquete personalizado."
+          invalid_name: "&c\"%name%\" necesita al menos tres letras o números."
+          exists: "&cYa existe un paquete con id %id%."
+          failed: "&cNo se pudo guardar el paquete. Revisa la consola para más detalles."
+          success: "&aPaquete personalizado creado: &e%name% &7(&f%id%&7)."
+          hint: "&7Usa &f/wm pack %id% &7para seleccionarlo o /wm pack mode para mezclar fuentes."
       
       config:
         help_header: "&6══ Ayuda de Configuración ══"
