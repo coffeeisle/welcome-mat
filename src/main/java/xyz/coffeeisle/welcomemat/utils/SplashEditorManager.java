@@ -15,13 +15,9 @@ import xyz.coffeeisle.welcomemat.ConfigManager;
 import xyz.coffeeisle.welcomemat.LanguageManager;
 import xyz.coffeeisle.welcomemat.WelcomeMat;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
 
 public class SplashEditorManager implements Listener {
     public enum SplashField {
@@ -31,7 +27,6 @@ public class SplashEditorManager implements Listener {
 
     private final WelcomeMat plugin;
     private final Map<UUID, SplashField> activeEdits = new HashMap<>();
-    private final Map<UUID, ItemStack> heldItemBackups = new HashMap<>();
     private final NamespacedKey editorKey;
 
     public SplashEditorManager(WelcomeMat plugin) {
@@ -49,9 +44,12 @@ public class SplashEditorManager implements Listener {
         }
 
         ItemStack editorBook = createEditorBook(field);
-        activeEdits.put(uuid, field);
-        openVirtualEditor(player, editorBook);
+        if (!giveEditorBook(player, editorBook)) {
+            player.sendMessage(lang.getMessage("splash.inventory_full"));
+            return false;
+        }
 
+        activeEdits.put(uuid, field);
         player.sendMessage(lang.getMessage(field == SplashField.TITLE ?
             "splash.started_title" : "splash.started_subtitle"));
         return true;
@@ -104,7 +102,6 @@ public class SplashEditorManager implements Listener {
         String newValue = extractFirstPage(meta);
         if (newValue.isEmpty()) {
             player.sendMessage(plugin.getLanguageManager().getMessage("splash.empty_value"));
-            restoreHeldItem(player);
             return;
         }
 
@@ -122,84 +119,69 @@ public class SplashEditorManager implements Listener {
             field == SplashField.TITLE ? "splash.updated_title" : "splash.updated_subtitle",
             placeholders
         ));
-
-        restoreHeldItem(player);
+        removeEditorBook(player);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
-        restoreHeldItem(event.getPlayer());
         activeEdits.remove(uuid);
+        removeEditorBook(event.getPlayer());
     }
 
     private boolean isSplashEditorBook(BookMeta meta) {
         return meta != null && meta.getPersistentDataContainer().has(editorKey, PersistentDataType.STRING);
     }
 
-    private void openVirtualEditor(Player player, ItemStack editorBook) {
-        LanguageManager lang = plugin.getLanguageManager();
-        UUID uuid = player.getUniqueId();
-        ItemStack original = player.getInventory().getItemInMainHand();
-        ItemStack originalCopy = original == null ? new ItemStack(Material.AIR) : original.clone();
-
-        heldItemBackups.put(uuid, originalCopy);
-        player.getInventory().setItemInMainHand(editorBook);
-        player.updateInventory();
-
-        if (sendOpenBookPacket(player)) {
-            return;
-        }
-
-        // Fallback: return their original item immediately and hand them the editor book manually.
-        heldItemBackups.remove(uuid);
-        player.getInventory().setItemInMainHand(originalCopy);
-        player.updateInventory();
-        giveManualEditorBook(player, editorBook);
-        player.sendMessage(lang.getMessage("splash.editor_manual_fallback"));
-    }
-
-    private boolean sendOpenBookPacket(Player player) {
-        try {
-            Method getHandle = player.getClass().getMethod("getHandle");
-            Object serverPlayer = getHandle.invoke(player);
-            Field connectionField = serverPlayer.getClass().getField("connection");
-            Object connection = connectionField.get(serverPlayer);
-
-            Class<?> interactionHandClass = Class.forName("net.minecraft.world.InteractionHand");
-            @SuppressWarnings("unchecked")
-            Object mainHand = Enum.valueOf((Class<Enum>) interactionHandClass, "MAIN_HAND");
-
-            Class<?> packetClass = Class.forName("net.minecraft.network.protocol.game.ClientboundOpenBookPacket");
-            Constructor<?> packetConstructor = packetClass.getConstructor(interactionHandClass);
-            Object packet = packetConstructor.newInstance(mainHand);
-
-            Class<?> packetParent = Class.forName("net.minecraft.network.protocol.Packet");
-            Method sendMethod = connection.getClass().getMethod("send", packetParent);
-            sendMethod.invoke(connection, packet);
-            return true;
-        } catch (Exception ex) {
-            plugin.getLogger().log(Level.WARNING, "Failed to open virtual splash editor for " + player.getName(), ex);
+    private boolean isSplashEditorBook(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType() != Material.WRITABLE_BOOK) {
             return false;
         }
-    }
 
-    private void giveManualEditorBook(Player player, ItemStack editorBook) {
-        Map<Integer, ItemStack> leftovers = player.getInventory().addItem(editorBook);
-        if (!leftovers.isEmpty()) {
-            leftovers.values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+        if (!(itemStack.getItemMeta() instanceof BookMeta)) {
+            return false;
         }
+
+        return isSplashEditorBook((BookMeta) itemStack.getItemMeta());
     }
 
-    private void restoreHeldItem(Player player) {
-        UUID uuid = player.getUniqueId();
-        ItemStack original = heldItemBackups.remove(uuid);
-        if (original == null) {
+    private boolean giveEditorBook(Player player, ItemStack editorBook) {
+        ItemStack current = player.getInventory().getItemInMainHand();
+        if (current == null || current.getType().isAir()) {
+            player.getInventory().setItemInMainHand(editorBook);
+            player.updateInventory();
+            return true;
+        }
+
+        Map<Integer, ItemStack> leftovers = player.getInventory().addItem(editorBook);
+        boolean success = leftovers.isEmpty();
+        if (!success) {
+            // Nothing was added because the inventory was full.
+            return false;
+        }
+
+        player.updateInventory();
+        return true;
+    }
+
+    private void removeEditorBook(Player player) {
+        ItemStack[] contents = player.getInventory().getContents();
+        for (int slot = 0; slot < contents.length; slot++) {
+            ItemStack stack = contents[slot];
+            if (!isSplashEditorBook(stack)) {
+                continue;
+            }
+
+            if (stack.getAmount() <= 1) {
+                player.getInventory().setItem(slot, null);
+            } else {
+                stack.setAmount(stack.getAmount() - 1);
+                player.getInventory().setItem(slot, stack);
+            }
+
+            player.updateInventory();
             return;
         }
-
-        player.getInventory().setItemInMainHand(original);
-        player.updateInventory();
     }
 
     private String extractFirstPage(BookMeta meta) {
