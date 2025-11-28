@@ -87,9 +87,9 @@ WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.10 and is ful
 | `/wm effects` | `welcomemat.effects` | Enables or disables join effects for the executing player.
 | `/wm animation` | `welcomemat.animation` | Opens the animation status view; supports `list`, `set <id|pack|random>`, and `test <id|random>`.
 | `/wm pack` | `welcomemat.pack` | Selects a message pack, switches pack modes, or creates new packs with `/wm pack create <Friendly Name>`.
-| `/wm splash <title|subtitle> [edit]` | `welcomemat.config` | Views or edits the welcome title/subtitle using clickable chat controls.
-| `/wm language <english|spanish>` | `welcomemat.language` | Switches the active language bundle.
-| `/wm config <get|set|list>` | `welcomemat.config` | Reads or writes any config path. Sound paths preview audio instantly for players.
+| `/wm splash <title\|subtitle> [edit]` | `welcomemat.config` | Views or edits the welcome title/subtitle using clickable chat controls.
+| `/wm language <english\|spanish>` | `welcomemat.language` | Switches the active language bundle.
+| `/wm config <get\|set\|list>` | `welcomemat.config` | Reads or writes any config path. Sound paths preview audio instantly for players.
 | `/wm reload` | `welcomemat.reload` | Reloads `config.yml`, `messages.yml`, and re-runs the migration helper.
 
 ### Command Examples
