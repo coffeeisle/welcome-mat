@@ -1,4 +1,5 @@
 # WelcomeMat Configuration
+config-version: "1.3"
 
 # Available sounds (1.13+):
 # - BLOCK_NOTE_BLOCK_PLING
@@ -49,61 +50,8 @@ sounds:
 # Message Packs
 message-packs:
   # Currently selected pack (default, friendly, professional, funny, rpg, skyward, copper)
+  # Pack contents themselves now live in messages.yml so you can update them per-language.
   selected: "default"
-  
-  # Default pack (original messages)
-  default:
-    join:
-      - "&e%player% &ajust joined the server!"
-    leave:
-      - "&e%player% &chas left the server!"
-  
-  # Friendly pack
-  friendly:
-    join:
-      - "&d✨ &e%player% &ahas joined the party! &d✨"
-      - "&aWelcome back, &e%player%&a! We missed you! &d❤"
-      - "&aLook who's here! &e%player% &ahas arrived! &d✨"
-      - "&d🌟 &aThe amazing &e%player% &ahas joined! &d🌟"
-    leave:
-      - "&e%player% &7had to go... &cSee you soon! &d💕"
-      - "&7Until next time, &e%player%&7! &d👋"
-      - "&7We'll miss you, &e%player%&7! Come back soon! &d💖"
-      - "&e%player% &7went to take a break! &d✨"
-  
-  # Message Packs
-  message-packs:
-    # Currently selected pack (default, friendly, professional, funny, rpg, skyward, copper)
-    # Pack contents themselves now live in messages.yml so you can update them per-language.
-    selected: "default"
-      - "&6🏰 &e%player% &6must attend to other quests"
-      - "&6📜 &eThe tale of &6%player% &epauses here"
-
-  # Skyward pack (Happy Ghast & Locator Bar vibes)
-  skyward:
-    join:
-      - "&b☁ &f%player% rode in on a Happy Ghast escort!"
-      - "&d🎈 &fLocator ping! &b%player% &fjust drifted through the clouds."
-      - "&b✨ &fA ghastling giggle announces &b%player%&f's arrival."
-      - "&d☁ &f%player% parachuted down from Chase the Skies!"
-    leave:
-      - "&f%player% hitched a ride on a cloud taxi."
-      - "&d🎈 &f%player% floated away to calm the ghastlings."
-      - "&b☁ &f%player% ascended beyond the Locator Bar."
-      - "&f%player% waved goodbye from a Happy Ghast cockpit."
-
-  # Copper Age pack
-  copper:
-    join:
-      - "&6⚙ &e%player% marched in with a Copper Golem squad."
-      - "&6🛡 &eCopper armor polished—make room for %player%!"
-      - "&6📦 &e%player% just upgraded their storage with Copper Chests."
-      - "&6🔶 &e%player% sparked the Copper Age on this server!"
-    leave:
-      - "&6⚙ &e%player% oxidized away for maintenance."
-      - "&6🛠 &e%player% went to wax their Copper gear."
-      - "&6📦 &e%player% is reorganizing Copper Chests back home."
-      - "&6🔶 &e%player% retreated to calibrate the Copper Golems."
 
 effects:
   enabled: true  # Global toggle for join effects
