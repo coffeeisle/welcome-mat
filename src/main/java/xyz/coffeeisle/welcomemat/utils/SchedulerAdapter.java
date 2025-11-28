@@ -22,6 +22,7 @@ import org.bukkit.scheduler.BukkitTask;
 public class SchedulerAdapter {
     private enum FoliaSchedulerVariant {
         LEGACY_TICKS,
+        LEGACY_WITH_RETIRED_TASK,
         TICKS_WITH_UNIT,
         DURATION
     }
@@ -52,6 +53,9 @@ public class SchedulerAdapter {
             if (handle != null) {
                 return handle;
             }
+
+            plugin.getLogger().warning("Folia scheduling failed; skipping join animation task to avoid unsafe fallback schedulers.");
+            return () -> { };
         }
 
         BukkitTask task = new BukkitRunnable() {
@@ -96,6 +100,17 @@ public class SchedulerAdapter {
                         && params[3] == long.class) {
                     schedulerRunAtFixedRate = method;
                     foliaVariant = FoliaSchedulerVariant.LEGACY_TICKS;
+                    break;
+                }
+
+                if (params.length == 5
+                        && Plugin.class.isAssignableFrom(params[0])
+                        && Consumer.class.isAssignableFrom(params[1])
+                        && Runnable.class.isAssignableFrom(params[2])
+                        && params[3] == long.class
+                        && params[4] == long.class) {
+                    schedulerRunAtFixedRate = method;
+                    foliaVariant = FoliaSchedulerVariant.LEGACY_WITH_RETIRED_TASK;
                     break;
                 }
 
@@ -165,11 +180,28 @@ public class SchedulerAdapter {
 
             switch (foliaVariant) {
                 case LEGACY_TICKS:
-                    scheduledTask = schedulerRunAtFixedRate.invoke(scheduler, plugin, consumer, delayTicks, periodTicks);
+                    scheduledTask = schedulerRunAtFixedRate.invoke(
+                        scheduler,
+                        plugin,
+                        consumer,
+                        ensurePositiveTicks(delayTicks),
+                        Math.max(1L, periodTicks)
+                    );
+                    break;
+                case LEGACY_WITH_RETIRED_TASK:
+                    Runnable retiredHandler = () -> { };
+                    scheduledTask = schedulerRunAtFixedRate.invoke(
+                        scheduler,
+                        plugin,
+                        consumer,
+                        retiredHandler,
+                        ensurePositiveTicks(delayTicks),
+                        Math.max(1L, periodTicks)
+                    );
                     break;
                 case TICKS_WITH_UNIT:
-                    long delayMillis = ticksToMillis(delayTicks);
-                    long periodMillis = ticksToMillis(periodTicks);
+                    long delayMillis = ticksToMillis(ensurePositiveTicks(delayTicks));
+                    long periodMillis = ticksToMillis(Math.max(1L, periodTicks));
                     scheduledTask = schedulerRunAtFixedRate.invoke(
                         scheduler,
                         plugin,
@@ -180,8 +212,8 @@ public class SchedulerAdapter {
                     );
                     break;
                 case DURATION:
-                    Duration delayDuration = ticksToDuration(delayTicks);
-                    Duration periodDuration = ticksToDuration(periodTicks);
+                    Duration delayDuration = ticksToDuration(ensurePositiveTicks(delayTicks));
+                    Duration periodDuration = ticksToDuration(Math.max(1L, periodTicks));
                     scheduledTask = schedulerRunAtFixedRate.invoke(
                         scheduler,
                         plugin,
@@ -216,5 +248,9 @@ public class SchedulerAdapter {
             return Duration.ZERO;
         }
         return Duration.ofMillis(ticksToMillis(ticks));
+    }
+
+    private long ensurePositiveTicks(long ticks) {
+        return ticks <= 0L ? 1L : ticks;
     }
 }
