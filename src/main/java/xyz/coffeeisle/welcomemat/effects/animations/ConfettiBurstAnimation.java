@@ -39,14 +39,14 @@ public class ConfettiBurstAnimation extends Animation {
                 double vx = randomVelocity();
                 double vy = 0.6 + ThreadLocalRandom.current().nextDouble(0.2);
                 double vz = randomVelocity();
-                origin.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, origin, 0, vx, vy, vz, 0.02);
+                origin.getWorld().spawnParticle(Particle.FIREWORK, origin, 0, vx, vy, vz, 0.02);
             }
         }
 
         private void sprinkleSparkles() {
             Location center = location.clone().add(0, 1.4, 0);
             center.getWorld().spawnParticle(Particle.NOTE, center, 3, 0.6, 0.4, 0.6, 0.3);
-            center.getWorld().spawnParticle(Particle.SPELL_MOB, center, 15, 0.8, 0.5, 0.8, 0.01);
+            center.getWorld().spawnParticle(Particle.ENTITY_EFFECT, center, 15, 0.8, 0.5, 0.8, 0.01);
         }
 
         private double randomVelocity() {

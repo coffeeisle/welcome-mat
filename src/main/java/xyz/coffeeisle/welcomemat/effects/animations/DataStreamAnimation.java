@@ -31,8 +31,8 @@ public class DataStreamAnimation extends Animation {
             double rising = (tick * 0.06);
             Location base = location.clone().add(0, rising, 0);
 
-            base.getWorld().spawnParticle(Particle.REDSTONE, base, 4, 0.15, 0.1, 0.15, 0, NEON_BLUE);
-            base.getWorld().spawnParticle(Particle.REDSTONE, base, 2, 0.1, 0.05, 0.1, 0, CODE_GREEN);
+            base.getWorld().spawnParticle(Particle.DUST, base, 4, 0.15, 0.1, 0.15, 0, NEON_BLUE);
+            base.getWorld().spawnParticle(Particle.DUST, base, 2, 0.1, 0.05, 0.1, 0, CODE_GREEN);
 
             if (tick % 4 == 0) {
                 drawBinaryRing(base.clone().add(0, 0.3, 0));
