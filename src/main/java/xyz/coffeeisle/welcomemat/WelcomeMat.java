@@ -10,6 +10,7 @@ import xyz.coffeeisle.welcomemat.effects.JoinEffectManager;
 import org.bukkit.command.PluginCommand;
 import xyz.coffeeisle.welcomemat.effects.AnimationRegistry;
 import xyz.coffeeisle.welcomemat.analytics.Analytics;
+import xyz.coffeeisle.welcomemat.utils.SchedulerAdapter;
 
 public class WelcomeMat extends JavaPlugin {
     private static WelcomeMat instance;
@@ -19,6 +20,7 @@ public class WelcomeMat extends JavaPlugin {
     private JoinEffectManager joinEffectManager;
     private AnimationRegistry animationRegistry;
     private Analytics analytics;
+    private SchedulerAdapter schedulerAdapter;
 
     // ANSI color codes for console
     private static final String GOLD = "\u001B[33m";
@@ -36,6 +38,9 @@ public class WelcomeMat extends JavaPlugin {
         
         // Initialize AnimationRegistry
         this.animationRegistry = new AnimationRegistry();
+
+        // Scheduler helper (Folia-aware)
+        this.schedulerAdapter = new SchedulerAdapter(this);
 
         // Display startup message
         getLogger().info(RED + "  __      __" + WHITE + "   _                  " + YELLOW + "  __  __       _   " + RESET);
@@ -117,5 +122,9 @@ public class WelcomeMat extends JavaPlugin {
     }
     public AnimationRegistry getAnimationRegistry() {
         return animationRegistry;
+    }
+
+    public SchedulerAdapter getSchedulerAdapter() {
+        return schedulerAdapter;
     }
 }

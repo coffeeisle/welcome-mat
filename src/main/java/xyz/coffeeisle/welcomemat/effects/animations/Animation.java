@@ -1,9 +1,11 @@
 package xyz.coffeeisle.welcomemat.effects.animations;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import xyz.coffeeisle.welcomemat.WelcomeMat;
+import xyz.coffeeisle.welcomemat.utils.TaskHandle;
 
 public abstract class Animation {
     protected final WelcomeMat plugin;
@@ -39,26 +41,38 @@ public abstract class Animation {
     }
 
     protected void runAnimation(Player player, AnimationTask task) {
-        task.runTaskTimer(plugin, 0L, 1L);
+        AtomicReference<TaskHandle> handleRef = new AtomicReference<>();
+        Runnable tickTask = () -> {
+            if (!player.isOnline() || !task.tick()) {
+                cancelHandle(handleRef.getAndSet(null));
+            }
+        };
+
+        handleRef.set(plugin.getSchedulerAdapter().runEntityRepeating(player, 0L, 1L, tickTask));
     }
 
-    protected abstract class AnimationTask extends BukkitRunnable {
+    private void cancelHandle(TaskHandle handle) {
+        if (handle != null) {
+            handle.cancel();
+        }
+    }
+
+    protected abstract class AnimationTask {
         protected final Location location;
         protected int tick;
 
         protected AnimationTask(Player player) {
-            this.location = player.getLocation();
+            this.location = player.getLocation().clone();
             this.tick = 0;
         }
 
-        @Override
-        public void run() {
+        public boolean tick() {
             if (tick >= duration) {
-                this.cancel();
-                return;
+                return false;
             }
             tick++;
             playStep();
+            return true;
         }
 
         protected abstract void playStep();

@@ -30,7 +30,7 @@ WelcomeMat is available on Modrinth! Click the button below to download:
 
 ## 🔄 Compatibility
 
-WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.10.
+WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.10 and is fully tested on Bukkit/Spigot, Paper, Purpur, and Folia (regionized multithreading). The Folia build uses region-aware schedulers so the same jar runs safely on both single-threaded and regionized servers.
 
 ## ✨ Features
 

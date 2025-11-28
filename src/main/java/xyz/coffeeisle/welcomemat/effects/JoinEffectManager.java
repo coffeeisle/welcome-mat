@@ -4,11 +4,13 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import xyz.coffeeisle.welcomemat.WelcomeMat;
+import xyz.coffeeisle.welcomemat.utils.TaskHandle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class JoinEffectManager {
     private final WelcomeMat plugin;
@@ -56,88 +58,75 @@ public class JoinEffectManager {
     }
 
     private void playSpiralEffect(Player player, int duration) {
-        new BukkitRunnable() {
-            final Location loc = player.getLocation();
-            double phi = 0;
-            int tick = 0;
+        Location base = player.getLocation().clone();
+        AtomicInteger tick = new AtomicInteger();
+        AtomicReference<TaskHandle> handleRef = new AtomicReference<>();
 
-            @Override
-            public void run() {
-                phi += Math.PI/8;
-                double x = 0.5 * Math.cos(phi);
-                double z = 0.5 * Math.sin(phi);
-                double y = phi/5;
+        Runnable task = () -> {
+            double phi = tick.get() * Math.PI / 8;
+            double x = 0.5 * Math.cos(phi);
+            double z = 0.5 * Math.sin(phi);
+            double y = phi / 5;
 
-                Location particleLoc = loc.clone().add(x, y, z);
-                player.getWorld().spawnParticle(
-                    Particle.FLAME,
-                    particleLoc,
-                    1, 0, 0, 0, 0
-                );
+            Location particleLoc = base.clone().add(x, y, z);
+            player.getWorld().spawnParticle(Particle.FLAME, particleLoc, 1, 0, 0, 0, 0);
 
-                tick++;
-                if (tick >= duration) {
-                    this.cancel();
-                }
+            if (tick.incrementAndGet() >= duration || !player.isOnline()) {
+                cancelHandle(handleRef.getAndSet(null));
             }
-        }.runTaskTimer(plugin, 0L, 1L);
+        };
+
+        handleRef.set(plugin.getSchedulerAdapter().runEntityRepeating(player, 0L, 1L, task));
     }
 
     private void playHelixEffect(Player player, int duration) {
-        new BukkitRunnable() {
-            final Location loc = player.getLocation();
-            double phi = 0;
-            int tick = 0;
+        Location base = player.getLocation().clone();
+        AtomicInteger tick = new AtomicInteger();
+        AtomicReference<TaskHandle> handleRef = new AtomicReference<>();
 
-            @Override
-            public void run() {
-                phi += Math.PI/8;
-                for (double i = 0; i < Math.PI * 2; i += Math.PI/2) {
-                    double x = 0.8 * Math.cos(phi + i);
-                    double z = 0.8 * Math.sin(phi + i);
-                    double y = phi/4;
+        Runnable task = () -> {
+            double phi = tick.get() * Math.PI / 8;
+            for (double i = 0; i < Math.PI * 2; i += Math.PI / 2) {
+                double x = 0.8 * Math.cos(phi + i);
+                double z = 0.8 * Math.sin(phi + i);
+                double y = phi / 4;
 
-                    Location particleLoc = loc.clone().add(x, y, z);
-                    player.getWorld().spawnParticle(
-                        Particle.DRAGON_BREATH,
-                        particleLoc,
-                        1, 0, 0, 0, 0
-                    );
-                }
-
-                tick++;
-                if (tick >= duration) {
-                    this.cancel();
-                }
+                Location particleLoc = base.clone().add(x, y, z);
+                player.getWorld().spawnParticle(Particle.DRAGON_BREATH, particleLoc, 1, 0, 0, 0, 0);
             }
-        }.runTaskTimer(plugin, 0L, 1L);
+
+            if (tick.incrementAndGet() >= duration || !player.isOnline()) {
+                cancelHandle(handleRef.getAndSet(null));
+            }
+        };
+
+        handleRef.set(plugin.getSchedulerAdapter().runEntityRepeating(player, 0L, 1L, task));
     }
 
     private void playFountainEffect(Player player, int duration) {
-        new BukkitRunnable() {
-            final Location loc = player.getLocation();
-            int tick = 0;
+        Location base = player.getLocation().clone();
+        AtomicInteger tick = new AtomicInteger();
+        AtomicReference<TaskHandle> handleRef = new AtomicReference<>();
 
-            @Override
-            public void run() {
-                for (int i = 0; i < 8; i++) {
-                    double angle = 2 * Math.PI * i / 8;
-                    double x = Math.cos(angle);
-                    double z = Math.sin(angle);
-                    
-                    loc.getWorld().spawnParticle(
-                        Particle.CRIT,
-                        loc.clone().add(0, 1, 0),
-                        0, x/2, 1, z/2, 0.15
-                    );
-                }
+        Runnable task = () -> {
+            for (int i = 0; i < 8; i++) {
+                double angle = 2 * Math.PI * i / 8;
+                double x = Math.cos(angle);
+                double z = Math.sin(angle);
 
-                tick++;
-                if (tick >= duration) {
-                    this.cancel();
-                }
+                base.getWorld().spawnParticle(
+                    Particle.CRIT,
+                    base.clone().add(0, 1, 0),
+                    0, x / 2, 1, z / 2, 0.15
+                );
             }
-        }.runTaskTimer(plugin, 0L, 2L);
+
+            if (tick.incrementAndGet() >= duration || !player.isOnline()) {
+                cancelHandle(handleRef.getAndSet(null));
+            }
+        };
+
+        handleRef.set(plugin.getSchedulerAdapter().runEntityRepeating(player, 0L, 2L, task));
     }
 
     private void playBurstEffect(Player player) {
@@ -156,6 +145,12 @@ public class JoinEffectManager {
                     1, 0, 0, 0, 0
                 );
             }
+        }
+    }
+
+    private void cancelHandle(TaskHandle handle) {
+        if (handle != null) {
+            handle.cancel();
         }
     }
 }
