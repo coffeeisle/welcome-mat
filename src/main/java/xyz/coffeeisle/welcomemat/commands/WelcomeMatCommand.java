@@ -960,7 +960,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 suggestions.add("SPELL_WITCH");
                 suggestions.add("FLAME");
                 suggestions.add("HEART");
-                suggestions.add("VILLAGER_HAPPY");
+                suggestions.add("HAPPY_VILLAGER");
                 return filterCompletions(suggestions.toArray(new String[0]), args[3]);
             }
             

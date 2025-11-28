@@ -28,7 +28,7 @@ public class RuneCircleAnimation extends Animation {
                 double x = Math.cos(angle) * radius;
                 double z = Math.sin(angle) * radius;
                 center.getWorld().spawnParticle(
-                    Particle.ENCHANTMENT_TABLE,
+                    Particle.ENCHANT,
                     center.clone().add(x, 0, z),
                     1,
                     0,

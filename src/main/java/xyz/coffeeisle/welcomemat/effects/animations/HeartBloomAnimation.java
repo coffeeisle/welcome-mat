@@ -42,7 +42,7 @@ public class HeartBloomAnimation extends Animation {
             }
 
             center.getWorld().spawnParticle(
-                Particle.VILLAGER_HAPPY,
+                Particle.HAPPY_VILLAGER,
                 center,
                 3,
                 0.6,
