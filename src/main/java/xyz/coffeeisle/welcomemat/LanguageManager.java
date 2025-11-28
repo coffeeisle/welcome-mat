@@ -92,11 +92,13 @@ public class LanguageManager {
         }
     }
 
-    private void saveYaml(FileConfiguration yaml, File file, String name) {
+    private boolean saveYaml(FileConfiguration yaml, File file, String name) {
         try {
             yaml.save(file);
+            return true;
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to save " + name + ": " + e.getMessage());
+            return false;
         }
     }
 
@@ -278,9 +280,9 @@ public class LanguageManager {
         metadata.set("created-by", createdBy);
         metadata.set("created-at", Instant.now().toString());
 
-        saveYaml(customPacks, customsFile, "customs.yml");
+        boolean saved = saveYaml(customPacks, customsFile, "customs.yml");
         languageCache.clear();
-        return true;
+        return saved;
     }
 
     private ConfigurationSection resolvePackSection(String packId) {
