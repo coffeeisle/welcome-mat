@@ -15,9 +15,13 @@ import xyz.coffeeisle.welcomemat.ConfigManager;
 import xyz.coffeeisle.welcomemat.LanguageManager;
 import xyz.coffeeisle.welcomemat.WelcomeMat;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class SplashEditorManager implements Listener {
     public enum SplashField {
@@ -133,15 +137,58 @@ public class SplashEditorManager implements Listener {
     }
 
     private void openVirtualEditor(Player player, ItemStack editorBook) {
+        LanguageManager lang = plugin.getLanguageManager();
         ItemStack original = player.getInventory().getItemInMainHand();
         ItemStack originalCopy = original == null ? new ItemStack(Material.AIR) : original.clone();
 
         player.getInventory().setItemInMainHand(editorBook);
-        player.openBook(editorBook);
+        player.updateInventory();
 
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
-            player.getInventory().setItemInMainHand(originalCopy);
-        });
+        if (sendOpenBookPacket(player)) {
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                player.getInventory().setItemInMainHand(originalCopy);
+                player.updateInventory();
+            });
+            return;
+        }
+
+        // Fallback: return their original item immediately and hand them the editor book manually.
+        player.getInventory().setItemInMainHand(originalCopy);
+        player.updateInventory();
+        giveManualEditorBook(player, editorBook);
+        player.sendMessage(lang.getMessage("splash.editor_manual_fallback"));
+    }
+
+    private boolean sendOpenBookPacket(Player player) {
+        try {
+            Method getHandle = player.getClass().getMethod("getHandle");
+            Object serverPlayer = getHandle.invoke(player);
+            Field connectionField = serverPlayer.getClass().getField("connection");
+            Object connection = connectionField.get(serverPlayer);
+
+            Class<?> interactionHandClass = Class.forName("net.minecraft.world.InteractionHand");
+            @SuppressWarnings("unchecked")
+            Object mainHand = Enum.valueOf((Class<Enum>) interactionHandClass, "MAIN_HAND");
+
+            Class<?> packetClass = Class.forName("net.minecraft.network.protocol.game.ClientboundOpenBookPacket");
+            Constructor<?> packetConstructor = packetClass.getConstructor(interactionHandClass);
+            Object packet = packetConstructor.newInstance(mainHand);
+
+            Class<?> packetParent = Class.forName("net.minecraft.network.protocol.Packet");
+            Method sendMethod = connection.getClass().getMethod("send", packetParent);
+            sendMethod.invoke(connection, packet);
+            return true;
+        } catch (Exception ex) {
+            plugin.getLogger().log(Level.WARNING, "Failed to open virtual splash editor for " + player.getName(), ex);
+            return false;
+        }
+    }
+
+    private void giveManualEditorBook(Player player, ItemStack editorBook) {
+        Map<Integer, ItemStack> leftovers = player.getInventory().addItem(editorBook);
+        if (!leftovers.isEmpty()) {
+            leftovers.values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+        }
     }
 
     private String extractFirstPage(BookMeta meta) {
