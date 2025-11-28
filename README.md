@@ -32,6 +32,11 @@ WelcomeMat is available on Modrinth! Click the button below to download:
 
 WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.10 and is fully tested on Bukkit/Spigot, Paper, Purpur, and Folia (regionized multithreading). The Folia build uses region-aware schedulers so the same jar runs safely on both single-threaded and regionized servers.
 
+### 🚀 What's New in v1.3.1
+- **Folia-safe animations:** Join effects now use the latest Folia entity schedulers, keeping animations responsive without tripping the watchdog on 1.21.8+.
+- **Smarter fallbacks:** If Folia ever exposes a new scheduler signature, the plugin logs the discovery and skips unsafe fallbacks instead of touching Bukkit's global scheduler.
+- **Automatic version metadata:** `plugin.yml` now receives the Gradle project version at build time, so downloads are always correctly labeled.
+
 ## ✨ Features
 
 ### Core Features
