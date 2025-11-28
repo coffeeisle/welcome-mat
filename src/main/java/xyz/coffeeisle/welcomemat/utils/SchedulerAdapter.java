@@ -2,6 +2,8 @@ package xyz.coffeeisle.welcomemat.utils;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -72,6 +74,8 @@ public class SchedulerAdapter {
     }
 
     private void prepareFoliaReflection() {
+        List<String> discoveredSignatures = new ArrayList<>();
+
         try {
             Class<?> entityClass = Class.forName("org.bukkit.entity.Entity");
             entityGetScheduler = entityClass.getMethod("getScheduler");
@@ -81,6 +85,8 @@ public class SchedulerAdapter {
                 if (!"runAtFixedRate".equals(method.getName())) {
                     continue;
                 }
+
+                discoveredSignatures.add(describeMethod(method));
 
                 Class<?>[] params = method.getParameterTypes();
                 if (params.length == 4
@@ -117,6 +123,14 @@ public class SchedulerAdapter {
 
             if (schedulerRunAtFixedRate == null) {
                 plugin.getLogger().severe("Could not find a compatible Folia runAtFixedRate signature");
+                if (discoveredSignatures.isEmpty()) {
+                    plugin.getLogger().severe("EntityScheduler had no runAtFixedRate methods to inspect.");
+                } else {
+                    plugin.getLogger().severe("Discovered Folia signatures:");
+                    for (String sig : discoveredSignatures) {
+                        plugin.getLogger().severe(" - " + sig);
+                    }
+                }
             }
 
             Class<?> scheduledTaskClass = Class.forName("io.papermc.paper.threadedregions.scheduler.ScheduledTask");
@@ -124,6 +138,19 @@ public class SchedulerAdapter {
         } catch (ReflectiveOperationException ex) {
             plugin.getLogger().log(Level.SEVERE, "Failed to prepare Folia scheduler reflection", ex);
         }
+    }
+
+    private String describeMethod(Method method) {
+        StringBuilder builder = new StringBuilder(method.getName()).append('(');
+        Class<?>[] parameters = method.getParameterTypes();
+        for (int i = 0; i < parameters.length; i++) {
+            builder.append(parameters[i].getName());
+            if (i + 1 < parameters.length) {
+                builder.append(", ");
+            }
+        }
+        builder.append(')');
+        return builder.toString();
     }
 
     private TaskHandle tryRunFoliaRepeating(Player player, long delayTicks, long periodTicks, Runnable runnable) {
