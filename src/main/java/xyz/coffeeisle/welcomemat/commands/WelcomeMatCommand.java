@@ -663,6 +663,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 case "pack":
                     List<String> packOptions = new ArrayList<>(plugin.getConfigManager().getAvailableMessagePacks());
                     packOptions.add("mode");
+                    packOptions.add("create");
                     return filterCompletions(
                         packOptions.toArray(new String[0]),
                         args[1]
@@ -681,7 +682,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 4 && args[0].equalsIgnoreCase("pack") && args[1].equalsIgnoreCase("mode")) {
-            return filterCompletions(new String[]{"config", "pack"}, args[3]);
+            return filterCompletions(new String[]{"custom", "pack"}, args[3]);
         }
 
         if (args.length == 3 && args[0].equalsIgnoreCase("config")) {
