@@ -30,6 +30,7 @@ build/
 modrinth.md
 INFO.md
 RELEASE_NOTES.md
+docs/
 
 .vscode
 .github
