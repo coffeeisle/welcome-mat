@@ -260,6 +260,14 @@ public class LanguageManager {
         return section.getString("splash.subtitle");
     }
 
+    public String getPackAnimation(String packId) {
+        ConfigurationSection section = resolvePackSection(packId);
+        if (section == null) {
+            return null;
+        }
+        return section.getString("animation");
+    }
+
     public boolean saveCustomPack(
             String packId,
             String displayName,

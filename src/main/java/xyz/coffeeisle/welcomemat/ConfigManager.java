@@ -54,6 +54,7 @@ public class ConfigManager {
         }
 
         ensureMessageDefaults();
+        ensureAnimationDefaults();
         config.set(CONFIG_VERSION_PATH, CONFIG_VERSION);
         plugin.saveConfig();
     }
@@ -145,6 +146,15 @@ public class ConfigManager {
         }
         if (!config.isSet("titles.join.subtitle")) {
             config.set("titles.join.subtitle", DEFAULT_SUBTITLE);
+        }
+    }
+
+    private void ensureAnimationDefaults() {
+        if (!config.isSet("effects.animation.source")) {
+            config.set("effects.animation.source", "pack");
+        }
+        if (!config.isSet("effects.animation.default")) {
+            config.set("effects.animation.default", "fire_spiral");
         }
     }
 
@@ -364,6 +374,42 @@ public class ConfigManager {
     public void setUsePackForSplash(boolean usePack) {
         config.set("messages.use-packs.splash", usePack);
         plugin.saveConfig();
+    }
+
+    public String getAnimationSource() {
+        return config.getString("effects.animation.source", "pack");
+    }
+
+    public boolean usePackForAnimations() {
+        return "pack".equalsIgnoreCase(getAnimationSource());
+    }
+
+    public void setAnimationSource(String source) {
+        config.set("effects.animation.source", source);
+        plugin.saveConfig();
+    }
+
+    public String getDefaultAnimationId() {
+        return config.getString("effects.animation.default", "fire_spiral");
+    }
+
+    public void setDefaultAnimationId(String animationId) {
+        config.set("effects.animation.default", animationId);
+        plugin.saveConfig();
+    }
+
+    public String getPackAnimationId() {
+        return plugin.getLanguageManager().getPackAnimation(getCurrentMessagePack());
+    }
+
+    public String getEffectiveAnimationId() {
+        if (usePackForAnimations()) {
+            String packAnimation = getPackAnimationId();
+            if (packAnimation != null && !packAnimation.isEmpty()) {
+                return packAnimation;
+            }
+        }
+        return getDefaultAnimationId();
     }
 
     public List<String> getCustomJoinMessages() {

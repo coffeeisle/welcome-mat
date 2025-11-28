@@ -55,6 +55,12 @@ message-packs:
 
 effects:
   enabled: true  # Global toggle for join effects
+  # Animation selection: when set to "pack" the active message pack decides the animation.
+  # Set to "custom" to always use the default animation below.
+  animation:
+    source: "pack"      # pack | custom
+    default: "fire_spiral"  # Fallback animation id when no pack animation exists
+  # Legacy particle options (kept for backward compatibility, no longer used by default)
   type: "SPIRAL"  # SPIRAL, HELIX, FOUNTAIN, BURST
   duration: 3     # Duration in seconds
   particles:
