@@ -5,6 +5,11 @@ import xyz.coffeeisle.welcomemat.WelcomeMat;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+import xyz.coffeeisle.welcomemat.utils.VersionUtils;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +18,8 @@ import java.util.stream.Collectors;
 public class ConfigManager {
     private final WelcomeMat plugin;
     private FileConfiguration config;
+    private static final String CONFIG_VERSION = "1.3";
+    private static final String CONFIG_VERSION_PATH = "config-version";
     
     // Default delay values in milliseconds
     private static final long DEFAULT_JOIN_DELAY = 0;
@@ -33,6 +40,7 @@ public class ConfigManager {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
         config = plugin.getConfig();
+        migrateConfigIfNeeded();
         
         // Ensure default delay configurations exist
         if (!config.isSet("delays.join")) {
@@ -46,7 +54,66 @@ public class ConfigManager {
         }
 
         ensureMessageDefaults();
+        config.set(CONFIG_VERSION_PATH, CONFIG_VERSION);
         plugin.saveConfig();
+    }
+
+    private void migrateConfigIfNeeded() {
+        String currentVersion = config.getString(CONFIG_VERSION_PATH, "0");
+        boolean migratedLegacyPacks = migrateEmbeddedMessagePacks();
+        if (VersionUtils.compare(currentVersion, CONFIG_VERSION) < 0 || migratedLegacyPacks) {
+            config.set(CONFIG_VERSION_PATH, CONFIG_VERSION);
+        }
+    }
+
+    private boolean migrateEmbeddedMessagePacks() {
+        ConfigurationSection packsSection = config.getConfigurationSection("message-packs");
+        if (packsSection == null) {
+            return false;
+        }
+
+        boolean movedLegacyData = false;
+        File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
+        if (!messagesFile.exists()) {
+            plugin.saveResource("messages.yml", false);
+        }
+        YamlConfiguration messagesYaml = YamlConfiguration.loadConfiguration(messagesFile);
+
+        for (String key : packsSection.getKeys(false)) {
+            if ("selected".equalsIgnoreCase(key)) {
+                continue;
+            }
+            ConfigurationSection legacySection = packsSection.getConfigurationSection(key);
+            if (legacySection == null) {
+                continue;
+            }
+            boolean containsMessages = legacySection.isConfigurationSection("messages") || legacySection.isConfigurationSection("splash");
+            if (!containsMessages) {
+                continue;
+            }
+
+            String targetPath = "message-packs." + key;
+            if (messagesYaml.contains(targetPath)) {
+                continue;
+            }
+
+            messagesYaml.set(targetPath, legacySection.getValues(true));
+            movedLegacyData = true;
+        }
+
+        if (movedLegacyData) {
+            try {
+                messagesYaml.save(messagesFile);
+                plugin.getLogger().info("Migrated legacy message packs from config.yml to messages.yml");
+            } catch (IOException e) {
+                plugin.getLogger().severe("Failed to migrate legacy message packs: " + e.getMessage());
+            }
+        }
+
+        String selectedPack = packsSection.getString("selected", "default");
+        config.set("message-packs", null);
+        config.set("message-packs.selected", selectedPack);
+        return movedLegacyData;
     }
 
     private void ensureMessageDefaults() {
@@ -292,6 +359,18 @@ public class ConfigManager {
     public void setUsePackForSplash(boolean usePack) {
         config.set("messages.use-packs.splash", usePack);
         plugin.saveConfig();
+    }
+
+    public List<String> getCustomJoinMessages() {
+        return getConfigMessages("messages.join", DEFAULT_JOIN_MESSAGE);
+    }
+
+    public List<String> getCustomFirstJoinMessages() {
+        return getConfigMessages("messages.first-join", DEFAULT_JOIN_MESSAGE);
+    }
+
+    public List<String> getCustomLeaveMessages() {
+        return getConfigMessages("messages.leave", DEFAULT_LEAVE_MESSAGE);
     }
 
     public void set(String path, String value) {
