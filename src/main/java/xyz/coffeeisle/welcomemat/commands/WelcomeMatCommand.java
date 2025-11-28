@@ -19,6 +19,7 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -146,13 +147,18 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
+        if (args[1].equalsIgnoreCase("create")) {
+            handlePackCreate(sender, args);
+            return;
+        }
+
         String pack = args[1].toLowerCase();
         if (config.setMessagePack(pack)) {
             config.setUsePackForJoinMessages(true);
             config.setUsePackForLeaveMessages(true);
             config.setUsePackForSplash(true);
             sender.sendMessage(ChatColor.GREEN + "Message pack changed to: " + pack);
-            sender.sendMessage(ChatColor.GRAY + "(Now using pack messages for join, leave, and splash. Use /wm pack mode <type> <config|pack> to change.)");
+            sender.sendMessage(ChatColor.GRAY + "(Now using pack messages for join, leave, and splash. Use /wm pack mode <type> <custom|pack> to change.)");
         } else {
             sender.sendMessage(ChatColor.RED + "Invalid message pack! Use /wm pack to see available packs.");
         }
@@ -160,7 +166,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
 
     private void handlePackMode(CommandSender sender, String[] args) {
         if (args.length < 4) {
-            sender.sendMessage(ChatColor.RED + "Usage: /wm pack mode <join|leave|splash> <config|pack>");
+            sender.sendMessage(ChatColor.RED + "Usage: /wm pack mode <join|leave|splash> <custom|pack>");
             return;
         }
 
@@ -169,10 +175,10 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         boolean usePack;
         if (mode.equals("pack") || mode.equals("on")) {
             usePack = true;
-        } else if (mode.equals("config") || mode.equals("off")) {
+        } else if (mode.equals("custom") || mode.equals("off")) {
             usePack = false;
         } else {
-            sender.sendMessage(ChatColor.RED + "Mode must be CONFIG or PACK.");
+            sender.sendMessage(ChatColor.RED + "Mode must be CUSTOM or PACK.");
             return;
         }
 
@@ -180,19 +186,70 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         switch (target) {
             case "join":
                 config.setUsePackForJoinMessages(usePack);
-                sender.sendMessage(ChatColor.GREEN + "Join chat messages will now use " + (usePack ? "the current pack." : "config.yml"));
+                sender.sendMessage(ChatColor.GREEN + "Join chat messages will now use " + (usePack ? "the current pack." : "custom text from config.yml."));
                 break;
             case "leave":
                 config.setUsePackForLeaveMessages(usePack);
-                sender.sendMessage(ChatColor.GREEN + "Leave chat messages will now use " + (usePack ? "the current pack." : "config.yml"));
+                sender.sendMessage(ChatColor.GREEN + "Leave chat messages will now use " + (usePack ? "the current pack." : "custom text from config.yml."));
                 break;
             case "splash":
                 config.setUsePackForSplash(usePack);
-                sender.sendMessage(ChatColor.GREEN + "Splash title/subtitle will now use " + (usePack ? "the current pack." : "config.yml"));
+                sender.sendMessage(ChatColor.GREEN + "Splash title/subtitle will now use " + (usePack ? "the current pack." : "custom text from config.yml."));
                 break;
             default:
                 sender.sendMessage(ChatColor.RED + "Unknown mode target. Use join, leave, or splash.");
         }
+    }
+
+    private void handlePackCreate(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            sender.sendMessage(ChatColor.RED + "Usage: /wm pack create <friendly name>");
+            return;
+        }
+
+        String rawName = String.join(" ", Arrays.copyOfRange(args, 2, args.length)).trim();
+        if (rawName.isEmpty()) {
+            sender.sendMessage(ChatColor.RED + "Please provide a name for the custom pack.");
+            return;
+        }
+
+        String packId = normalizePackId(rawName);
+        if (packId.length() < 3) {
+            sender.sendMessage(ChatColor.RED + "Pack names must include at least three alphanumeric characters.");
+            return;
+        }
+
+        LanguageManager languageManager = plugin.getLanguageManager();
+        if (languageManager.getMessagePackIds().contains(packId)) {
+            sender.sendMessage(ChatColor.RED + "A pack with that id already exists: " + packId);
+            return;
+        }
+
+        ConfigManager config = plugin.getConfigManager();
+        List<String> joinMessages = config.getCustomJoinMessages();
+        List<String> firstJoinMessages = config.getCustomFirstJoinMessages();
+        List<String> leaveMessages = config.getCustomLeaveMessages();
+
+        if (joinMessages.isEmpty()) {
+            joinMessages = Collections.singletonList("&e%player% &ajust joined the server!");
+        }
+        if (leaveMessages.isEmpty()) {
+            leaveMessages = Collections.singletonList("&e%player% &chas left the server!");
+        }
+
+        languageManager.saveCustomPack(
+            packId,
+            rawName,
+            joinMessages,
+            firstJoinMessages,
+            leaveMessages,
+            config.getRawJoinTitle(),
+            config.getRawJoinSubtitle(),
+            sender.getName()
+        );
+
+        sender.sendMessage(ChatColor.GREEN + "Created custom pack \"" + rawName + "\" (" + packId + ").");
+        sender.sendMessage(ChatColor.GRAY + "Use /wm pack " + packId + " to select it, or /wm pack mode to mix pack/custom sources.");
     }
 
     private void sendPackOverview(CommandSender sender) {
@@ -202,7 +259,8 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(ChatColor.GOLD + "=== WelcomeMat Message Packs ===");
         sender.sendMessage(ChatColor.YELLOW + "Current pack: " + ChatColor.WHITE + config.getCurrentMessagePack());
         sender.sendMessage(ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/wm pack <name>" + ChatColor.GRAY + " (apply pack)");
-        sender.sendMessage(ChatColor.YELLOW + "Modes: " + ChatColor.WHITE + "/wm pack mode <join|leave|splash> <config|pack>");
+        sender.sendMessage(ChatColor.YELLOW + "Modes: " + ChatColor.WHITE + "/wm pack mode <join|leave|splash> <custom|pack>");
+        sender.sendMessage(ChatColor.YELLOW + "Create: " + ChatColor.WHITE + "/wm pack create <name>" + ChatColor.GRAY + " (snapshot config text)");
 
         sender.sendMessage("");
         sender.sendMessage(ChatColor.GOLD + "Available packs:");
@@ -225,7 +283,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
     private String describePackSource(String label, boolean usingPack) {
         return ChatColor.YELLOW + label + ChatColor.GRAY + ": " + (usingPack
             ? ChatColor.GREEN + "pack"
-            : ChatColor.AQUA + "config");
+            : ChatColor.AQUA + "custom");
     }
 
     private void handleConfig(CommandSender sender, String[] args) {
@@ -807,6 +865,18 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         return Arrays.stream(options)
             .filter(option -> option.toLowerCase().startsWith(input.toLowerCase()))
             .collect(Collectors.toList());
+    }
+
+    private String normalizePackId(String input) {
+        String lowered = input.toLowerCase().replaceAll("[^a-z0-9]+", "-");
+        lowered = lowered.replaceAll("-+", "-");
+        if (lowered.startsWith("-")) {
+            lowered = lowered.substring(1);
+        }
+        if (lowered.endsWith("-")) {
+            lowered = lowered.substring(0, lowered.length() - 1);
+        }
+        return lowered;
     }
 
     private void playToggleSound(Player player) {
