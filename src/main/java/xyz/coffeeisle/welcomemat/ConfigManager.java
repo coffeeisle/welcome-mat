@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.ConfigurationSection;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 public class ConfigManager {
@@ -19,6 +20,11 @@ public class ConfigManager {
     private static final long DEFAULT_JOIN_DELAY = 0;
     private static final long DEFAULT_WELCOME_DELAY = 1000;
     private static final long DEFAULT_TITLE_DELAY = 500;
+
+    private static final String DEFAULT_JOIN_MESSAGE = "&e%player% &ajust joined the server!";
+    private static final String DEFAULT_LEAVE_MESSAGE = "&e%player% &chas left the server!";
+    private static final String DEFAULT_TITLE = "&6Welcome!";
+    private static final String DEFAULT_SUBTITLE = "&eEnjoy your stay!";
 
     public ConfigManager(WelcomeMat plugin) {
         this.plugin = plugin;
@@ -40,21 +46,59 @@ public class ConfigManager {
         if (!config.isSet("delays.title")) {
             config.set("delays.title", DEFAULT_TITLE_DELAY);
         }
+
+        ensureMessageDefaults();
         plugin.saveConfig();
     }
 
-    public String getJoinMessage(String playerName, boolean isFirstJoin) {
-        String pack = config.getString("message-packs.selected", "default");
-        String messageType = isFirstJoin ? "first-join" : "join";
-        List<String> messages = config.getStringList("message-packs." + pack + "." + messageType);
-        
-        if (messages == null || messages.isEmpty()) {
-            // Fallback to default message
-            String message = config.getString("messages.join", "&aWelcome &e%player% &ato the server!");
-            return ChatColor.translateAlternateColorCodes('&', message.replace("%player%", playerName));
+    private void ensureMessageDefaults() {
+        if (!config.isSet("messages.use-packs.join")) {
+            config.set("messages.use-packs.join", false);
         }
-        
-        // Get random message from pack
+        if (!config.isSet("messages.use-packs.leave")) {
+            config.set("messages.use-packs.leave", false);
+        }
+        if (!config.isSet("messages.use-packs.splash")) {
+            config.set("messages.use-packs.splash", false);
+        }
+
+        if (!config.isList("messages.join")) {
+            String existing = config.getString("messages.join", DEFAULT_JOIN_MESSAGE);
+            config.set("messages.join", Collections.singletonList(existing));
+        }
+        if (!config.isList("messages.leave")) {
+            String existing = config.getString("messages.leave", DEFAULT_LEAVE_MESSAGE);
+            config.set("messages.leave", Collections.singletonList(existing));
+        }
+        if (!config.isSet("titles.join.title")) {
+            config.set("titles.join.title", DEFAULT_TITLE);
+        }
+        if (!config.isSet("titles.join.subtitle")) {
+            config.set("titles.join.subtitle", DEFAULT_SUBTITLE);
+        }
+    }
+
+    public String getJoinMessage(String playerName, boolean isFirstJoin) {
+        List<String> messages;
+        if (usePackForJoinMessages()) {
+            messages = plugin.getLanguageManager().getPackMessages(
+                getCurrentMessagePack(),
+                isFirstJoin ? "first-join" : "join"
+            );
+            if (messages.isEmpty() && isFirstJoin) {
+                messages = plugin.getLanguageManager().getPackMessages(getCurrentMessagePack(), "join");
+            }
+        } else {
+            messages = getConfigMessages("messages." + (isFirstJoin ? "first-join" : "join"), DEFAULT_JOIN_MESSAGE);
+            if (messages.isEmpty() && isFirstJoin) {
+                messages = getConfigMessages("messages.join", DEFAULT_JOIN_MESSAGE);
+            }
+        }
+
+        if (messages.isEmpty()) {
+            messages = Collections.singletonList(DEFAULT_JOIN_MESSAGE);
+        }
+
         String message = messages.get((int) (Math.random() * messages.size()));
         return ChatColor.translateAlternateColorCodes('&', message.replace("%player%", playerName));
     }
@@ -64,28 +108,48 @@ public class ConfigManager {
     }
     
     public String getLeaveMessage(String playerName) {
-        String pack = config.getString("message-packs.selected", "default");
-        List<String> messages = config.getStringList("message-packs." + pack + ".leave");
-        
-        if (messages == null || messages.isEmpty()) {
-            // Fallback to default message
-            String message = config.getString("messages.leave", "&e%player% &chas left the server!");
-            return ChatColor.translateAlternateColorCodes('&', message.replace("%player%", playerName));
+        List<String> messages;
+        if (usePackForLeaveMessages()) {
+            messages = plugin.getLanguageManager().getPackMessages(
+                getCurrentMessagePack(),
+                "leave"
+            );
+        } else {
+            messages = getConfigMessages("messages.leave", DEFAULT_LEAVE_MESSAGE);
         }
-        
-        // Get random message from pack
+
+        if (messages.isEmpty()) {
+            messages = Collections.singletonList(DEFAULT_LEAVE_MESSAGE);
+        }
+
         String message = messages.get((int) (Math.random() * messages.size()));
         return ChatColor.translateAlternateColorCodes('&', message.replace("%player%", playerName));
     }
 
     public String getJoinTitle() {
-        return ChatColor.translateAlternateColorCodes('&', 
-            config.getString("titles.join.title", "&6Welcome!"));
+        String raw;
+        if (usePackForSplash()) {
+            raw = plugin.getLanguageManager().getPackSplashTitle(getCurrentMessagePack());
+        } else {
+            raw = config.getString("titles.join.title", DEFAULT_TITLE);
+        }
+        if (raw == null || raw.isEmpty()) {
+            raw = DEFAULT_TITLE;
+        }
+        return ChatColor.translateAlternateColorCodes('&', raw);
     }
 
     public String getJoinSubtitle() {
-        return ChatColor.translateAlternateColorCodes('&', 
-            config.getString("titles.join.subtitle", "&eEnjoy your stay!"));
+        String raw;
+        if (usePackForSplash()) {
+            raw = plugin.getLanguageManager().getPackSplashSubtitle(getCurrentMessagePack());
+        } else {
+            raw = config.getString("titles.join.subtitle", DEFAULT_SUBTITLE);
+        }
+        if (raw == null || raw.isEmpty()) {
+            raw = DEFAULT_SUBTITLE;
+        }
+        return ChatColor.translateAlternateColorCodes('&', raw);
     }
 
     public String getRawJoinTitle() {
@@ -98,11 +162,13 @@ public class ConfigManager {
 
     public void updateJoinTitle(String rawValue) {
         config.set("titles.join.title", rawValue);
+        setUsePackForSplash(false);
         plugin.saveConfig();
     }
 
     public void updateJoinSubtitle(String rawValue) {
         config.set("titles.join.subtitle", rawValue);
+        setUsePackForSplash(false);
         plugin.saveConfig();
     }
 
@@ -187,7 +253,7 @@ public class ConfigManager {
     }
 
     public boolean setMessagePack(String pack) {
-        if (!config.contains("message-packs." + pack)) {
+        if (!plugin.getLanguageManager().getMessagePackIds().contains(pack)) {
             return false;
         }
         config.set("message-packs.selected", pack);
@@ -200,12 +266,34 @@ public class ConfigManager {
     }
 
     public List<String> getAvailableMessagePacks() {
-        ConfigurationSection packs = config.getConfigurationSection("message-packs");
-        if (packs == null) return new ArrayList<>();
-        
-        return packs.getKeys(false).stream()
-            .filter(key -> !key.equals("selected"))
-            .collect(Collectors.toList());
+        return new ArrayList<>(plugin.getLanguageManager().getMessagePackIds());
+    }
+
+    public boolean usePackForJoinMessages() {
+        return config.getBoolean("messages.use-packs.join", false);
+    }
+
+    public boolean usePackForLeaveMessages() {
+        return config.getBoolean("messages.use-packs.leave", false);
+    }
+
+    public boolean usePackForSplash() {
+        return config.getBoolean("messages.use-packs.splash", false);
+    }
+
+    public void setUsePackForJoinMessages(boolean usePack) {
+        config.set("messages.use-packs.join", usePack);
+        plugin.saveConfig();
+    }
+
+    public void setUsePackForLeaveMessages(boolean usePack) {
+        config.set("messages.use-packs.leave", usePack);
+        plugin.saveConfig();
+    }
+
+    public void setUsePackForSplash(boolean usePack) {
+        config.set("messages.use-packs.splash", usePack);
+        plugin.saveConfig();
     }
 
     public void set(String path, String value) {
@@ -241,5 +329,17 @@ public class ConfigManager {
 
     public float getFloat(String path, float defaultValue) {
         return (float) config.getDouble(path, defaultValue);
+    }
+
+    private List<String> getConfigMessages(String path, String fallback) {
+        if (config.isList(path)) {
+            List<String> list = config.getStringList(path);
+            return list != null ? list : Collections.emptyList();
+        }
+        String value = config.getString(path, fallback);
+        if (value == null || value.isEmpty()) {
+            return fallback == null ? Collections.emptyList() : Collections.singletonList(fallback);
+        }
+        return Collections.singletonList(value);
     }
 }

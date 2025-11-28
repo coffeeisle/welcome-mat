@@ -136,20 +136,96 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         }
 
         ConfigManager config = plugin.getConfigManager();
-        if (args.length < 2) {
-            String currentPack = config.getCurrentMessagePack();
-            sender.sendMessage(ChatColor.GOLD + "Current message pack: " + ChatColor.YELLOW + currentPack);
-            sender.sendMessage(ChatColor.GOLD + "Available packs: " + ChatColor.YELLOW + 
-                String.join(", ", config.getAvailableMessagePacks()));
+        if (args.length == 1) {
+            sendPackOverview(sender);
+            return;
+        }
+
+        if (args[1].equalsIgnoreCase("mode")) {
+            handlePackMode(sender, args);
             return;
         }
 
         String pack = args[1].toLowerCase();
         if (config.setMessagePack(pack)) {
+            config.setUsePackForJoinMessages(true);
+            config.setUsePackForLeaveMessages(true);
+            config.setUsePackForSplash(true);
             sender.sendMessage(ChatColor.GREEN + "Message pack changed to: " + pack);
+            sender.sendMessage(ChatColor.GRAY + "(Now using pack messages for join, leave, and splash. Use /wm pack mode <type> <config|pack> to change.)");
         } else {
             sender.sendMessage(ChatColor.RED + "Invalid message pack! Use /wm pack to see available packs.");
         }
+    }
+
+    private void handlePackMode(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            sender.sendMessage(ChatColor.RED + "Usage: /wm pack mode <join|leave|splash> <config|pack>");
+            return;
+        }
+
+        String target = args[2].toLowerCase();
+        String mode = args[3].toLowerCase();
+        boolean usePack;
+        if (mode.equals("pack") || mode.equals("on")) {
+            usePack = true;
+        } else if (mode.equals("config") || mode.equals("off")) {
+            usePack = false;
+        } else {
+            sender.sendMessage(ChatColor.RED + "Mode must be CONFIG or PACK.");
+            return;
+        }
+
+        ConfigManager config = plugin.getConfigManager();
+        switch (target) {
+            case "join":
+                config.setUsePackForJoinMessages(usePack);
+                sender.sendMessage(ChatColor.GREEN + "Join chat messages will now use " + (usePack ? "the current pack." : "config.yml"));
+                break;
+            case "leave":
+                config.setUsePackForLeaveMessages(usePack);
+                sender.sendMessage(ChatColor.GREEN + "Leave chat messages will now use " + (usePack ? "the current pack." : "config.yml"));
+                break;
+            case "splash":
+                config.setUsePackForSplash(usePack);
+                sender.sendMessage(ChatColor.GREEN + "Splash title/subtitle will now use " + (usePack ? "the current pack." : "config.yml"));
+                break;
+            default:
+                sender.sendMessage(ChatColor.RED + "Unknown mode target. Use join, leave, or splash.");
+        }
+    }
+
+    private void sendPackOverview(CommandSender sender) {
+        ConfigManager config = plugin.getConfigManager();
+        LanguageManager lang = plugin.getLanguageManager();
+
+        sender.sendMessage(ChatColor.GOLD + "=== WelcomeMat Message Packs ===");
+        sender.sendMessage(ChatColor.YELLOW + "Current pack: " + ChatColor.WHITE + config.getCurrentMessagePack());
+        sender.sendMessage(ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/wm pack <name>" + ChatColor.GRAY + " (apply pack)");
+        sender.sendMessage(ChatColor.YELLOW + "Modes: " + ChatColor.WHITE + "/wm pack mode <join|leave|splash> <config|pack>");
+
+        sender.sendMessage("");
+        sender.sendMessage(ChatColor.GOLD + "Available packs:");
+        List<String> packs = lang.getMessagePackIds();
+        if (packs.isEmpty()) {
+            sender.sendMessage(ChatColor.RED + "No packs defined in messages.yml.");
+        } else {
+            for (String id : packs) {
+                sender.sendMessage(ChatColor.GRAY + " - " + ChatColor.YELLOW + id + ChatColor.DARK_GRAY + " (" + lang.getMessagePackDisplayName(id) + ")");
+            }
+        }
+
+        sender.sendMessage("");
+        sender.sendMessage(ChatColor.GOLD + "Current sources:");
+        sender.sendMessage(describePackSource("Join", config.usePackForJoinMessages()));
+        sender.sendMessage(describePackSource("Leave", config.usePackForLeaveMessages()));
+        sender.sendMessage(describePackSource("Splash", config.usePackForSplash()));
+    }
+
+    private String describePackSource(String label, boolean usingPack) {
+        return ChatColor.YELLOW + label + ChatColor.GRAY + ": " + (usingPack
+            ? ChatColor.GREEN + "pack"
+            : ChatColor.AQUA + "config");
     }
 
     private void handleConfig(CommandSender sender, String[] args) {
@@ -527,8 +603,10 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2) {
             switch (args[0].toLowerCase()) {
                 case "pack":
+                    List<String> packOptions = new ArrayList<>(plugin.getConfigManager().getAvailableMessagePacks());
+                    packOptions.add("mode");
                     return filterCompletions(
-                        plugin.getConfigManager().getAvailableMessagePacks().toArray(new String[0]),
+                        packOptions.toArray(new String[0]),
                         args[1]
                     );
                 case "config":
@@ -538,6 +616,14 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 case "splash":
                     return filterCompletions(new String[]{"title", "subtitle"}, args[1]);
             }
+        }
+
+        if (args.length == 3 && args[0].equalsIgnoreCase("pack") && args[1].equalsIgnoreCase("mode")) {
+            return filterCompletions(new String[]{"join", "leave", "splash"}, args[2]);
+        }
+
+        if (args.length == 4 && args[0].equalsIgnoreCase("pack") && args[1].equalsIgnoreCase("mode")) {
+            return filterCompletions(new String[]{"config", "pack"}, args[3]);
         }
 
         if (args.length == 3 && args[0].equalsIgnoreCase("config")) {

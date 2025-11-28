@@ -21,7 +21,6 @@ public class PlayerEventListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        LanguageManager lang = plugin.getLanguageManager();
         
         if (player.hasPermission("welcomemat.bypass")) {
             return;
@@ -38,14 +37,14 @@ public class PlayerEventListener implements Listener {
         if (config.isJoinTitleEnabled()) {
             try {
                 player.sendTitle(
-                    lang.getMessage("join.title"),
-                    lang.getMessage("join.subtitle"),
+                    config.getJoinTitle(),
+                    config.getJoinSubtitle(),
                     20, 60, 20
                 );
             } catch (NoSuchMethodError e) {
                 player.sendTitle(
-                    lang.getMessage("join.title"),
-                    lang.getMessage("join.subtitle")
+                    config.getJoinTitle(),
+                    config.getJoinSubtitle()
                 );
             }
         }

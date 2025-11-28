@@ -22,8 +22,14 @@ features:
   other-players-sounds: true
 
 messages:
-  join: "&e%player% &ajust joined the server!"
-  leave: "&e%player% &chas left the server!"
+  use-packs:
+    join: false
+    leave: false
+    splash: false
+  join:
+    - "&e%player% &ajust joined the server!"
+  leave:
+    - "&e%player% &chas left the server!"
 
 titles:
   join:
@@ -65,40 +71,11 @@ message-packs:
       - "&7We'll miss you, &e%player%&7! Come back soon! &d💖"
       - "&e%player% &7went to take a break! &d✨"
   
-  # Professional pack
-  professional:
-    join:
-      - "&7[&a+&7] &e%player%"
-      - "&8» &e%player% &7has connected"
-      - "&7(&a+&7) &e%player% &7joined the game"
-    leave:
-      - "&7[&c-&7] &e%player%"
-      - "&8« &e%player% &7has disconnected"
-      - "&7(&c-&7) &e%player% &7left the game"
-  
-  # Funny pack
-  funny:
-    join:
-      - "&a%player% &efell from the sky!"
-      - "&eLook out! &a%player% &ejust crashed the party!"
-      - "&a%player% &ejust rolled in like a boss!"
-      - "&eWhoosh! &a%player% &eappeared out of nowhere!"
-    leave:
-      - "&e%player% &cvanished in a puff of smoke!"
-      - "&e%player% &cwas eaten by a dragon... (just kidding!)"
-      - "&e%player% &chad to go touch some grass"
-      - "&e%player% &cran away from their responsibilities"
-  
-  # RPG pack
-  rpg:
-    join:
-      - "&6⚔ &e%player% &6has entered the realm"
-      - "&6🏰 &eA new adventurer, &6%player%&e, arrives"
-      - "&6📜 &eThe legend of &6%player% &ebegins here"
-      - "&6⚔ &eHark! &6%player% &ejoins the quest!"
-    leave:
-      - "&6📜 &e%player% &6retreats to rest at an inn"
-      - "&6⚔ &e%player% &6ventures forth to new lands"
+  # Message Packs
+  message-packs:
+    # Currently selected pack (default, friendly, professional, funny, rpg, skyward, copper)
+    # Pack contents themselves now live in messages.yml so you can update them per-language.
+    selected: "default"
       - "&6🏰 &e%player% &6must attend to other quests"
       - "&6📜 &eThe tale of &6%player% &epauses here"
 

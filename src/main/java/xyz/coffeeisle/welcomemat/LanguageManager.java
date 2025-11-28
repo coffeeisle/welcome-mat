@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +42,7 @@ public class LanguageManager {
             messages.setDefaults(defaultMessages);
         }
 
-        currentLanguage = messages.getString("selected-language", "en_US");
+        currentLanguage = messages.getString("selected-language", "english");
         languageCache.clear();
     }
 
@@ -128,5 +130,33 @@ public class LanguageManager {
         }
 
         return builder.length() > 0 ? builder.toString() : packId;
+    }
+
+    public List<String> getMessagePackIds() {
+        if (!messages.isConfigurationSection("message-packs")) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(messages.getConfigurationSection("message-packs").getKeys(false));
+    }
+
+    public List<String> getPackMessages(String packId, String messageType) {
+        if (packId == null || packId.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String path = "message-packs." + packId + ".messages." + messageType;
+        if (!messages.isSet(path)) {
+            return Collections.emptyList();
+        }
+        List<String> values = messages.getStringList(path);
+        return values != null ? values : Collections.emptyList();
+    }
+
+    public String getPackSplashTitle(String packId) {
+        return messages.getString("message-packs." + packId + ".splash.title");
+    }
+
+    public String getPackSplashSubtitle(String packId) {
+        return messages.getString("message-packs." + packId + ".splash.subtitle");
     }
 } 
