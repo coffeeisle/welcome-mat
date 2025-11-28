@@ -6,6 +6,7 @@ import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import xyz.coffeeisle.welcomemat.utils.ConfigFileMigrator;
 import xyz.coffeeisle.welcomemat.utils.VersionUtils;
 
 import java.io.File;
@@ -38,6 +39,8 @@ public class ConfigManager {
 
     public void loadConfig() {
         plugin.saveDefaultConfig();
+        File configFile = new File(plugin.getDataFolder(), "config.yml");
+        ConfigFileMigrator.migrateIfOutdated(plugin, configFile, "config.yml", CONFIG_VERSION_PATH, CONFIG_VERSION);
         plugin.reloadConfig();
         config = plugin.getConfig();
         migrateConfigIfNeeded();
