@@ -1,6 +1,8 @@
 package xyz.coffeeisle.welcomemat.utils;
 
 import java.lang.reflect.Method;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -16,12 +18,19 @@ import org.bukkit.scheduler.BukkitTask;
  * builds.
  */
 public class SchedulerAdapter {
+    private enum FoliaSchedulerVariant {
+        LEGACY_TICKS,
+        TICKS_WITH_UNIT,
+        DURATION
+    }
+
     private final Plugin plugin;
     private final boolean foliaAvailable;
 
     private Method entityGetScheduler;
     private Method schedulerRunAtFixedRate;
     private Method scheduledTaskCancel;
+    private FoliaSchedulerVariant foliaVariant;
 
     public SchedulerAdapter(Plugin plugin) {
         this.plugin = plugin;
@@ -68,13 +77,47 @@ public class SchedulerAdapter {
             entityGetScheduler = entityClass.getMethod("getScheduler");
 
             Class<?> entitySchedulerClass = Class.forName("io.papermc.paper.threadedregions.scheduler.EntityScheduler");
-            schedulerRunAtFixedRate = entitySchedulerClass.getMethod(
-                "runAtFixedRate",
-                Plugin.class,
-                Consumer.class,
-                long.class,
-                long.class
-            );
+            for (Method method : entitySchedulerClass.getMethods()) {
+                if (!"runAtFixedRate".equals(method.getName())) {
+                    continue;
+                }
+
+                Class<?>[] params = method.getParameterTypes();
+                if (params.length == 4
+                        && Plugin.class.isAssignableFrom(params[0])
+                        && Consumer.class.isAssignableFrom(params[1])
+                        && params[2] == long.class
+                        && params[3] == long.class) {
+                    schedulerRunAtFixedRate = method;
+                    foliaVariant = FoliaSchedulerVariant.LEGACY_TICKS;
+                    break;
+                }
+
+                if (params.length == 5
+                        && Plugin.class.isAssignableFrom(params[0])
+                        && Consumer.class.isAssignableFrom(params[1])
+                        && params[2] == long.class
+                        && params[3] == long.class
+                        && TimeUnit.class.isAssignableFrom(params[4])) {
+                    schedulerRunAtFixedRate = method;
+                    foliaVariant = FoliaSchedulerVariant.TICKS_WITH_UNIT;
+                    break;
+                }
+
+                if (params.length == 4
+                        && Plugin.class.isAssignableFrom(params[0])
+                        && Consumer.class.isAssignableFrom(params[1])
+                        && Duration.class.isAssignableFrom(params[2])
+                        && Duration.class.isAssignableFrom(params[3])) {
+                    schedulerRunAtFixedRate = method;
+                    foliaVariant = FoliaSchedulerVariant.DURATION;
+                    break;
+                }
+            }
+
+            if (schedulerRunAtFixedRate == null) {
+                plugin.getLogger().severe("Could not find a compatible Folia runAtFixedRate signature");
+            }
 
             Class<?> scheduledTaskClass = Class.forName("io.papermc.paper.threadedregions.scheduler.ScheduledTask");
             scheduledTaskCancel = scheduledTaskClass.getMethod("cancel");
@@ -84,14 +127,45 @@ public class SchedulerAdapter {
     }
 
     private TaskHandle tryRunFoliaRepeating(Player player, long delayTicks, long periodTicks, Runnable runnable) {
-        if (entityGetScheduler == null || schedulerRunAtFixedRate == null || scheduledTaskCancel == null) {
+        if (entityGetScheduler == null || schedulerRunAtFixedRate == null || scheduledTaskCancel == null || foliaVariant == null) {
             return null;
         }
 
         try {
             Object scheduler = entityGetScheduler.invoke(player);
             Consumer<Object> consumer = scheduledTask -> runnable.run();
-            Object scheduledTask = schedulerRunAtFixedRate.invoke(scheduler, plugin, consumer, delayTicks, periodTicks);
+            Object scheduledTask;
+
+            switch (foliaVariant) {
+                case LEGACY_TICKS:
+                    scheduledTask = schedulerRunAtFixedRate.invoke(scheduler, plugin, consumer, delayTicks, periodTicks);
+                    break;
+                case TICKS_WITH_UNIT:
+                    long delayMillis = ticksToMillis(delayTicks);
+                    long periodMillis = ticksToMillis(periodTicks);
+                    scheduledTask = schedulerRunAtFixedRate.invoke(
+                        scheduler,
+                        plugin,
+                        consumer,
+                        delayMillis,
+                        periodMillis,
+                        TimeUnit.MILLISECONDS
+                    );
+                    break;
+                case DURATION:
+                    Duration delayDuration = ticksToDuration(delayTicks);
+                    Duration periodDuration = ticksToDuration(periodTicks);
+                    scheduledTask = schedulerRunAtFixedRate.invoke(
+                        scheduler,
+                        plugin,
+                        consumer,
+                        delayDuration,
+                        periodDuration
+                    );
+                    break;
+                default:
+                    return null;
+            }
 
             return () -> {
                 try {
@@ -104,5 +178,16 @@ public class SchedulerAdapter {
             plugin.getLogger().log(Level.WARNING, "Folia scheduling failed, falling back to Bukkit scheduler", ex);
             return null;
         }
+    }
+
+    private long ticksToMillis(long ticks) {
+        return Math.max(0L, ticks) * 50L;
+    }
+
+    private Duration ticksToDuration(long ticks) {
+        if (ticks <= 0L) {
+            return Duration.ZERO;
+        }
+        return Duration.ofMillis(ticksToMillis(ticks));
     }
 }
