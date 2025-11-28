@@ -39,7 +39,7 @@ public class WelcomeMat extends JavaPlugin {
         instance = this;
         
         // Initialize AnimationRegistry
-        this.animationRegistry = new AnimationRegistry();
+        this.animationRegistry = new AnimationRegistry(this);
 
         // Scheduler helper (Folia-aware)
         this.schedulerAdapter = new SchedulerAdapter(this);
