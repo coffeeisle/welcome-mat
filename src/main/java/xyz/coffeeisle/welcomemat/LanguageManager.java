@@ -94,4 +94,39 @@ public class LanguageManager {
     public String getCurrentLanguage() {
         return currentLanguage;
     }
+
+    public String getMessagePackDisplayName(String packId) {
+        if (packId == null || packId.isEmpty()) {
+            return ChatColor.RED + "Unknown";
+        }
+
+        String localizedPath = "languages." + currentLanguage + ".message-packs." + packId + ".name";
+        String defaultPath = "message-packs." + packId + ".name";
+
+        String name = messages.getString(localizedPath);
+        if (name == null) {
+            name = messages.getString(defaultPath);
+        }
+
+        if (name != null) {
+            return ChatColor.translateAlternateColorCodes('&', name);
+        }
+
+        String[] parts = packId.replace('-', ' ').replace('_', ' ').split(" ");
+        StringBuilder builder = new StringBuilder();
+        for (String part : parts) {
+            if (part.isEmpty()) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append(' ');
+            }
+            builder.append(Character.toUpperCase(part.charAt(0)));
+            if (part.length() > 1) {
+                builder.append(part.substring(1).toLowerCase());
+            }
+        }
+
+        return builder.length() > 0 ? builder.toString() : packId;
+    }
 } 

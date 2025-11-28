@@ -3,7 +3,7 @@ selected-language: "english"
 
 # Message packs configuration
 message-packs:
-  # Available packs: default, friendly, professional, funny, rpg
+  # Available packs: default, friendly, professional, funny, rpg, skyward, copper
   default:
     name: "Default"
     messages:

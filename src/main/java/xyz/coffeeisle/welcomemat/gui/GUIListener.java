@@ -1,20 +1,25 @@
 package xyz.coffeeisle.welcomemat.gui;
 
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.ChatColor;
 import xyz.coffeeisle.welcomemat.WelcomeMat;
 import xyz.coffeeisle.welcomemat.ConfigManager;
 import xyz.coffeeisle.welcomemat.utils.LogManager;
 import org.bukkit.Sound;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 public class GUIListener implements Listener {
     private final WelcomeMat plugin;
     private final LogManager logManager;
+    private final NamespacedKey packKey;
     private static final String[] GUI_TITLES = {
         ChatColor.DARK_GRAY + "WelcomeMat Settings",
         ChatColor.DARK_GRAY + "Language Settings",
@@ -25,6 +30,7 @@ public class GUIListener implements Listener {
     public GUIListener(WelcomeMat plugin) {
         this.plugin = plugin;
         this.logManager = new LogManager(plugin);
+        this.packKey = new NamespacedKey(plugin, "message_pack");
     }
 
     @EventHandler
@@ -126,8 +132,27 @@ public class GUIListener implements Listener {
     }
 
     private void handleMessagePackMenu(Player player, ItemStack clicked) {
-        String pack = ChatColor.stripColor(clicked.getItemMeta().getDisplayName())
-            .toLowerCase().replace(" pack", "");
+        ItemMeta meta = clicked.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+
+        String strippedName = ChatColor.stripColor(meta.getDisplayName());
+        if ("Back".equalsIgnoreCase(strippedName)) {
+            new SettingsGUI(plugin).openMainMenu(player);
+            return;
+        }
+
+        String pack = null;
+        PersistentDataContainer container = meta.getPersistentDataContainer();
+        if (container.has(packKey, PersistentDataType.STRING)) {
+            pack = container.get(packKey, PersistentDataType.STRING);
+        }
+
+        if (pack == null || pack.isEmpty()) {
+            pack = strippedName.toLowerCase().replace(" pack", "").replace(' ', '-');
+        }
+
         plugin.getConfigManager().setMessagePack(pack);
         logManager.logAdminAction(player, "Change Message Pack", "Set to: " + pack);
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 2.0f);

@@ -30,7 +30,7 @@ WelcomeMat is available on Modrinth! Click the button below to download:
 
 ## 🔄 Compatibility
 
-WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.5.
+WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.10.
 
 ## ✨ Features
 
@@ -43,6 +43,8 @@ WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.5.
 | Join Effects | Beautiful particle effects | ✅ Implemented |
 | Language Support | Multiple language options | ✅ Implemented |
 | User-Friendly GUI | Easy settings management | ✅ Implemented |
+
+> New in v1.3.0: Skyward (Happy Ghast) and Copper Age message packs themed after the 1.21.10 content updates.
 
 ### Player Experience
 | Feature | Description | Status |
