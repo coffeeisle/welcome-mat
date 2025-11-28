@@ -10,6 +10,8 @@ import xyz.coffeeisle.welcomemat.ConfigManager;
 import xyz.coffeeisle.welcomemat.database.DatabaseManager;
 import xyz.coffeeisle.welcomemat.LanguageManager;
 import xyz.coffeeisle.welcomemat.gui.SettingsGUI;
+import xyz.coffeeisle.welcomemat.utils.SplashEditorManager;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -52,6 +54,9 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 break;
             case "help":
                 sendHelp(sender);
+                break;
+            case "splash":
+                handleSplash(sender, args);
                 break;
             case "language":
                 handleLanguage(sender, args);
@@ -346,6 +351,105 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void handleSplash(CommandSender sender, String[] args) {
+        LanguageManager lang = plugin.getLanguageManager();
+
+        if (!sender.hasPermission("welcomemat.config")) {
+            sender.sendMessage(lang.getMessage("splash.no_permission"));
+            return;
+        }
+
+        ConfigManager config = plugin.getConfigManager();
+        if (args.length == 1) {
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("title", config.getJoinTitle());
+            placeholders.put("subtitle", config.getJoinSubtitle());
+            sender.sendMessage(lang.getMessage("splash.header"));
+            sender.sendMessage(lang.getMessage("splash.overview", placeholders));
+            sender.sendMessage(lang.getMessage("splash.helper"));
+
+            if (sender instanceof Player) {
+                sendSplashButtons((Player) sender);
+            } else {
+                sender.sendMessage(lang.getMessage("splash.players_only"));
+            }
+            return;
+        }
+
+        SplashEditorManager.SplashField field;
+        switch (args[1].toLowerCase()) {
+            case "title":
+                field = SplashEditorManager.SplashField.TITLE;
+                break;
+            case "subtitle":
+                field = SplashEditorManager.SplashField.SUBTITLE;
+                break;
+            default:
+                sender.sendMessage(lang.getMessage("splash.helper"));
+                return;
+        }
+
+        sendSplashFieldInfo(sender, field);
+
+        if (args.length >= 3 && args[2].equalsIgnoreCase("edit")) {
+            startSplashEdit(sender, field);
+        }
+    }
+
+    private void sendSplashFieldInfo(CommandSender sender, SplashEditorManager.SplashField field) {
+        LanguageManager lang = plugin.getLanguageManager();
+        ConfigManager config = plugin.getConfigManager();
+        Map<String, String> placeholders = new HashMap<>();
+
+        if (field == SplashEditorManager.SplashField.TITLE) {
+            placeholders.put("title", config.getJoinTitle());
+            sender.sendMessage(lang.getMessage("splash.current_title", placeholders));
+        } else {
+            placeholders.put("subtitle", config.getJoinSubtitle());
+            sender.sendMessage(lang.getMessage("splash.current_subtitle", placeholders));
+        }
+
+        if (sender instanceof Player) {
+            sendSplashButton((Player) sender, field);
+        } else {
+            sender.sendMessage(lang.getMessage("splash.players_only"));
+        }
+    }
+
+    private void startSplashEdit(CommandSender sender, SplashEditorManager.SplashField field) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(plugin.getLanguageManager().getMessage("splash.not_player"));
+            return;
+        }
+
+        Player player = (Player) sender;
+        plugin.getSplashEditorManager().beginEditing(player, field);
+    }
+
+    private void sendSplashButtons(Player player) {
+        sendSplashButton(player, SplashEditorManager.SplashField.TITLE);
+        sendSplashButton(player, SplashEditorManager.SplashField.SUBTITLE);
+    }
+
+    private void sendSplashButton(Player player, SplashEditorManager.SplashField field) {
+        LanguageManager lang = plugin.getLanguageManager();
+        String textKey = field == SplashEditorManager.SplashField.TITLE ?
+            "splash.button_title" : "splash.button_subtitle";
+        String hoverKey = field == SplashEditorManager.SplashField.TITLE ?
+            "splash.hover_title" : "splash.hover_subtitle";
+        String command = field == SplashEditorManager.SplashField.TITLE ?
+            "/wm splash title edit" : "/wm splash subtitle edit";
+
+        BaseComponent[] components = TextComponent.fromLegacyText(lang.getMessage(textKey));
+        ClickEvent clickEvent = new ClickEvent(ClickEvent.Action.RUN_COMMAND, command);
+        HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(lang.getMessage(hoverKey)));
+        for (BaseComponent component : components) {
+            component.setClickEvent(clickEvent);
+            component.setHoverEvent(hoverEvent);
+        }
+        player.spigot().sendMessage(components);
+    }
+
     private void handleLanguage(CommandSender sender, String[] args) {
         if (!sender.hasPermission("welcomemat.language")) {
             sender.sendMessage(plugin.getLanguageManager().getMessage("language.no_permission"));
@@ -416,7 +520,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
-            String[] commands = {"reload", "sound", "pack", "config", "help", "language", "gui"};
+            String[] commands = {"reload", "sound", "pack", "config", "help", "language", "gui", "splash"};
             return filterCompletions(commands, args[0]);
         }
 
@@ -431,6 +535,8 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                     return filterCompletions(new String[]{"set", "get", "list"}, args[1]);
                 case "language":
                     return filterCompletions(new String[]{"english", "spanish"}, args[1]);
+                case "splash":
+                    return filterCompletions(new String[]{"title", "subtitle"}, args[1]);
             }
         }
 
@@ -488,6 +594,10 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
             
             return filterCompletions(paths.toArray(new String[0]), args[2]);
         }
+
+                    if (args.length == 3 && args[0].equalsIgnoreCase("splash")) {
+                        return filterCompletions(new String[]{"edit"}, args[2]);
+                    }
 
         // Value suggestions for configuration
         if (args.length == 4 && args[0].equalsIgnoreCase("config") && args[1].equalsIgnoreCase("set")) {
@@ -599,6 +709,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         }
         if (sender.hasPermission("welcomemat.config")) {
             sender.sendMessage(lang.getMessage("help.config"));
+            sender.sendMessage(lang.getMessage("help.splash"));
         }
         if (sender.hasPermission("welcomemat.language")) {
             sender.sendMessage(lang.getMessage("help.language"));

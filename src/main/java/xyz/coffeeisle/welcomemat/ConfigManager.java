@@ -88,6 +88,24 @@ public class ConfigManager {
             config.getString("titles.join.subtitle", "&eEnjoy your stay!"));
     }
 
+    public String getRawJoinTitle() {
+        return config.getString("titles.join.title", "&6Welcome!");
+    }
+
+    public String getRawJoinSubtitle() {
+        return config.getString("titles.join.subtitle", "&eEnjoy your stay!");
+    }
+
+    public void updateJoinTitle(String rawValue) {
+        config.set("titles.join.title", rawValue);
+        plugin.saveConfig();
+    }
+
+    public void updateJoinSubtitle(String rawValue) {
+        config.set("titles.join.subtitle", rawValue);
+        plugin.saveConfig();
+    }
+
     public boolean isJoinMessageEnabled() {
         return config.getBoolean("features.join-message", true);
     }
