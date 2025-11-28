@@ -42,7 +42,7 @@ public class CopperGolemAnimation extends Animation {
                     double x = size * Math.cos(angle);
                     double z = size * Math.sin(angle);
                     base.getWorld().spawnParticle(
-                        Particle.REDSTONE,
+                        Particle.DUST,
                         base.clone().add(x, y, z),
                         1, 0.02, 0.02, 0.02, 0,
                         COPPER_DUST
@@ -59,7 +59,7 @@ public class CopperGolemAnimation extends Animation {
                 double x = radius * Math.cos(angle);
                 double z = radius * Math.sin(angle);
                 center.getWorld().spawnParticle(
-                    Particle.FIREWORKS_SPARK,
+                    Particle.FIREWORK,
                     center.clone().add(x, 0.4 * progress, z),
                     2, 0.05, 0.05, 0.05, 0.01
                 );
