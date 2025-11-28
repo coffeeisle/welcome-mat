@@ -1,8 +1,6 @@
 package xyz.coffeeisle.welcomemat;
 
 import org.bukkit.ChatColor;
-import org.bukkit.command.*;
-import org.bukkit.entity.Player;
 import xyz.coffeeisle.welcomemat.WelcomeMat;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;

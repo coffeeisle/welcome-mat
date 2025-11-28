@@ -54,8 +54,8 @@ public class LanguageManager {
 
         String message = messages.getString("languages." + currentLanguage + ".messages." + path);
         if (message == null) {
-            // Fallback to en_US
-            message = messages.getString("languages.en_US.messages." + path, "Missing message: " + path);
+            // Fallback to English block
+            message = messages.getString("languages.english.messages." + path, "Missing message: " + path);
         }
 
         message = ChatColor.translateAlternateColorCodes('&', message);
@@ -145,11 +145,14 @@ public class LanguageManager {
         }
 
         String path = "message-packs." + packId + ".messages." + messageType;
-        if (!messages.isSet(path)) {
-            return Collections.emptyList();
+        if (messages.isList(path)) {
+            List<String> values = messages.getStringList(path);
+            return values != null ? values : Collections.emptyList();
         }
-        List<String> values = messages.getStringList(path);
-        return values != null ? values : Collections.emptyList();
+        if (messages.isString(path)) {
+            return Collections.singletonList(messages.getString(path));
+        }
+        return Collections.emptyList();
     }
 
     public String getPackSplashTitle(String packId) {

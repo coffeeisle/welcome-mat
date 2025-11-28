@@ -11,6 +11,9 @@ message-packs:
         - "&e%player% &ajust joined the server!"
       leave:
         - "&e%player% &chas left the server!"
+    splash:
+      title: "&6Welcome!"
+      subtitle: "&eEnjoy your stay!"
   friendly:
     name: "Friendly"
     messages:
@@ -24,6 +27,9 @@ message-packs:
         - "&7Until next time, &e%player%&7! &d👋"
         - "&7We'll miss you, &e%player%&7! Come back soon! &d💖"
         - "&e%player% &7went to take a break! &d✨"
+    splash:
+      title: "&dWelcome Back!"
+      subtitle: "&eWe're so happy you're here!"
   professional:
     name: "Professional"
     messages:
@@ -35,6 +41,9 @@ message-packs:
         - "&7[&c-&7] &e%player%"
         - "&8« &e%player% &7has disconnected"
         - "&7(&c-&7) &e%player% &7left the game"
+    splash:
+      title: "&7Welcome, Operator"
+      subtitle: "&fConnection established successfully"
   funny:
     name: "Funny"
     messages:
@@ -48,6 +57,9 @@ message-packs:
         - "&e%player% &cwas eaten by a dragon... (just kidding!)"
         - "&e%player% &chad to go touch some grass"
         - "&e%player% &cran away from their responsibilities"
+    splash:
+      title: "&aTa-da!"
+      subtitle: "&eCue the laugh track!"
   rpg:
     name: "RPG Fantasy"
     messages:
@@ -61,6 +73,9 @@ message-packs:
         - "&6⚔ &e%player% &6ventures forth to new lands"
         - "&6🏰 &e%player% &6must attend to other quests"
         - "&6📜 &eThe tale of &6%player% &epauses here"
+    splash:
+      title: "&6Hero Emerges"
+      subtitle: "&eMay your quest be glorious!"
   skyward:
     name: "Skyward"
     messages:
@@ -74,6 +89,9 @@ message-packs:
         - "&d🎈 &f%player% floated away to calm the ghastlings."
         - "&b☁ &f%player% ascended beyond the Locator Bar."
         - "&f%player% waved goodbye from a Happy Ghast cockpit."
+    splash:
+      title: "&bSkybound Arrival"
+      subtitle: "&fMind the Happy Ghast giggles!"
   copper:
     name: "Copper Age"
     messages:
@@ -87,6 +105,9 @@ message-packs:
         - "&6🛠 &e%player% went to wax their Copper gear."
         - "&6📦 &e%player% is reorganizing Copper Chests back home."
         - "&6🔶 &e%player% retreated to calibrate the Copper Golems."
+    splash:
+      title: "&6Copper Sparks"
+      subtitle: "&eShine bright, inventor!"
 
 languages:
   english:
