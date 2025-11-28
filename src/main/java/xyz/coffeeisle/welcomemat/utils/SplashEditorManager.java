@@ -31,6 +31,7 @@ public class SplashEditorManager implements Listener {
 
     private final WelcomeMat plugin;
     private final Map<UUID, SplashField> activeEdits = new HashMap<>();
+    private final Map<UUID, ItemStack> heldItemBackups = new HashMap<>();
     private final NamespacedKey editorKey;
 
     public SplashEditorManager(WelcomeMat plugin) {
@@ -103,6 +104,7 @@ public class SplashEditorManager implements Listener {
         String newValue = extractFirstPage(meta);
         if (newValue.isEmpty()) {
             player.sendMessage(plugin.getLanguageManager().getMessage("splash.empty_value"));
+            restoreHeldItem(player);
             return;
         }
 
@@ -120,15 +122,14 @@ public class SplashEditorManager implements Listener {
             field == SplashField.TITLE ? "splash.updated_title" : "splash.updated_subtitle",
             placeholders
         ));
+
+        restoreHeldItem(player);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
-        if (!activeEdits.containsKey(uuid)) {
-            return;
-        }
-
+        restoreHeldItem(event.getPlayer());
         activeEdits.remove(uuid);
     }
 
@@ -138,21 +139,20 @@ public class SplashEditorManager implements Listener {
 
     private void openVirtualEditor(Player player, ItemStack editorBook) {
         LanguageManager lang = plugin.getLanguageManager();
+        UUID uuid = player.getUniqueId();
         ItemStack original = player.getInventory().getItemInMainHand();
         ItemStack originalCopy = original == null ? new ItemStack(Material.AIR) : original.clone();
 
+        heldItemBackups.put(uuid, originalCopy);
         player.getInventory().setItemInMainHand(editorBook);
         player.updateInventory();
 
         if (sendOpenBookPacket(player)) {
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                player.getInventory().setItemInMainHand(originalCopy);
-                player.updateInventory();
-            });
             return;
         }
 
         // Fallback: return their original item immediately and hand them the editor book manually.
+        heldItemBackups.remove(uuid);
         player.getInventory().setItemInMainHand(originalCopy);
         player.updateInventory();
         giveManualEditorBook(player, editorBook);
@@ -189,6 +189,17 @@ public class SplashEditorManager implements Listener {
         if (!leftovers.isEmpty()) {
             leftovers.values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
         }
+    }
+
+    private void restoreHeldItem(Player player) {
+        UUID uuid = player.getUniqueId();
+        ItemStack original = heldItemBackups.remove(uuid);
+        if (original == null) {
+            return;
+        }
+
+        player.getInventory().setItemInMainHand(original);
+        player.updateInventory();
     }
 
     private String extractFirstPage(BookMeta meta) {
