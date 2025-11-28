@@ -138,6 +138,10 @@ public class GUIListener implements Listener {
         }
 
         String strippedName = ChatColor.stripColor(meta.getDisplayName());
+        String overviewName = ChatColor.stripColor(plugin.getLanguageManager().getMessage("pack.gui.info_name"));
+        if (overviewName.equalsIgnoreCase(strippedName)) {
+            return;
+        }
         if ("Back".equalsIgnoreCase(strippedName)) {
             new SettingsGUI(plugin).openMainMenu(player);
             return;

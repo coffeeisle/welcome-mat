@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import xyz.coffeeisle.welcomemat.WelcomeMat;
+import xyz.coffeeisle.welcomemat.LanguageManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,17 +42,46 @@ public class MessagePackGUI {
         List<String> packIds = plugin.getConfigManager().getAvailableMessagePacks();
         String currentPack = plugin.getConfigManager().getCurrentMessagePack();
 
-        int totalItems = packIds.size() + 1; // packs + back button
+        int totalItems = packIds.size() + 2; // packs + overview + back button
         int inventorySize = Math.max(9, ((totalItems + 8) / 9) * 9);
         Inventory inv = Bukkit.createInventory(null, inventorySize, GUI_TITLE);
 
         int slot = 0;
+        inv.setItem(slot++, createOverviewItem(currentPack));
         for (String packId : packIds) {
             inv.setItem(slot++, createPackItem(packId, currentPack));
         }
 
         inv.setItem(inventorySize - 1, GUIUtils.createBackButton());
         player.openInventory(inv);
+    }
+
+    private ItemStack createOverviewItem(String currentPack) {
+        ItemStack item = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            LanguageManager lang = plugin.getLanguageManager();
+            meta.setDisplayName(lang.getMessage("pack.gui.info_name"));
+
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("pack", currentPack);
+            placeholders.put("join", lang.getMessage(
+                plugin.getConfigManager().usePackForJoinMessages()
+                    ? "pack.mode.source.pack"
+                    : "pack.mode.source.custom"));
+            placeholders.put("leave", lang.getMessage(
+                plugin.getConfigManager().usePackForLeaveMessages()
+                    ? "pack.mode.source.pack"
+                    : "pack.mode.source.custom"));
+            placeholders.put("splash", lang.getMessage(
+                plugin.getConfigManager().usePackForSplash()
+                    ? "pack.mode.source.pack"
+                    : "pack.mode.source.custom"));
+
+            meta.setLore(lang.getMessageList("pack.gui.info_lore", placeholders));
+            item.setItemMeta(meta);
+        }
+        return item;
     }
 
     private ItemStack createPackItem(String id, String currentPack) {
@@ -64,9 +94,8 @@ public class MessagePackGUI {
             meta.setDisplayName(ChatColor.YELLOW + displayName);
 
             List<String> lore = new ArrayList<>();
-            lore.add(id.equalsIgnoreCase(currentPack)
-                ? ChatColor.GREEN + "Currently Selected"
-                : ChatColor.GRAY + "Click to select");
+            String loreKey = id.equalsIgnoreCase(currentPack) ? "pack.gui.selected" : "pack.gui.click";
+            lore.add(plugin.getLanguageManager().getMessage(loreKey));
             meta.setLore(lore);
             meta.getPersistentDataContainer().set(packKey, PersistentDataType.STRING, id);
             item.setItemMeta(meta);

@@ -121,10 +121,30 @@ public class LanguageManager {
 
     public String getMessage(String path, Map<String, String> placeholders) {
         String message = getMessage(path);
-        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-            message = message.replace("%" + entry.getKey() + "%", entry.getValue());
+        return applyPlaceholders(message, placeholders);
+    }
+
+    public List<String> getMessageList(String path) {
+        return getMessageList(path, Collections.emptyMap());
+    }
+
+    public List<String> getMessageList(String path, Map<String, String> placeholders) {
+        List<String> lines = messages.getStringList("languages." + currentLanguage + ".messages." + path);
+        if (lines == null || lines.isEmpty()) {
+            lines = messages.getStringList("languages.english.messages." + path);
         }
-        return message;
+        if (lines == null || lines.isEmpty()) {
+            String fallback = getMessage(path, placeholders);
+            return fallback == null ? Collections.emptyList() : Collections.singletonList(fallback);
+        }
+
+        List<String> result = new ArrayList<>();
+        for (String raw : lines) {
+            String processed = ChatColor.translateAlternateColorCodes('&', raw);
+            processed = applyPlaceholders(processed, placeholders);
+            result.add(processed);
+        }
+        return result;
     }
 
     public List<String> getAvailableLanguages() {
@@ -293,5 +313,16 @@ public class LanguageManager {
             }
         }
         return messages.getConfigurationSection("message-packs." + packId);
+    }
+
+    private String applyPlaceholders(String message, Map<String, String> placeholders) {
+        if (message == null || placeholders == null || placeholders.isEmpty()) {
+            return message;
+        }
+        String result = message;
+        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+            result = result.replace("%" + entry.getKey() + "%", entry.getValue());
+        }
+        return result;
     }
 } 

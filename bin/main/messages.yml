@@ -163,6 +163,17 @@ languages:
           failed: "&cFailed to save the custom pack. Check console for details."
           success: "&aCreated custom pack &e%name% &7(&f%id%&7)."
           hint: "&7Use &f/wm pack %id% &7to select it or /wm pack mode to mix sources."
+        gui:
+          info_name: "&ePack Overview"
+          info_lore:
+            - "&7Current pack: &f%pack%"
+            - "&7Join source: %join%"
+            - "&7Leave source: %leave%"
+            - "&7Splash source: %splash%"
+            - "&7Use &f/wm pack mode <type> <custom|pack>&7 to change sources."
+            - "&7Use &f/wm pack create <name>&7 to snapshot your custom text."
+          selected: "&aCurrently Selected"
+          click: "&7Click to select"
       
       config:
         help_header: "&6══ WelcomeMat Config Help ══"
@@ -369,6 +380,17 @@ languages:
           failed: "&cNo se pudo guardar el paquete. Revisa la consola para más detalles."
           success: "&aPaquete personalizado creado: &e%name% &7(&f%id%&7)."
           hint: "&7Usa &f/wm pack %id% &7para seleccionarlo o /wm pack mode para mezclar fuentes."
+        gui:
+          info_name: "&eResumen de Paquetes"
+          info_lore:
+            - "&7Paquete actual: &f%pack%"
+            - "&7Fuente de entrada: %join%"
+            - "&7Fuente de salida: %leave%"
+            - "&7Fuente del splash: %splash%"
+            - "&7Usa &f/wm pack mode <tipo> <custom|pack>&7 para cambiar las fuentes."
+            - "&7Usa &f/wm pack create <nombre>&7 para guardar tu texto personalizado."
+          selected: "&aActualmente seleccionado"
+          click: "&7Haz clic para seleccionar"
       
       config:
         help_header: "&6══ Ayuda de Configuración ══"
