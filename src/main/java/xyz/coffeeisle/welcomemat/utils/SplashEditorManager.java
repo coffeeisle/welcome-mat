@@ -27,7 +27,6 @@ public class SplashEditorManager implements Listener {
 
     private final WelcomeMat plugin;
     private final Map<UUID, SplashField> activeEdits = new HashMap<>();
-    private final Map<UUID, ItemStack> previousMainHand = new HashMap<>();
     private final NamespacedKey editorKey;
 
     public SplashEditorManager(WelcomeMat plugin) {
@@ -44,12 +43,9 @@ public class SplashEditorManager implements Listener {
             return false;
         }
 
-        ItemStack current = player.getInventory().getItemInMainHand();
-        previousMainHand.put(uuid, current == null ? null : current.clone());
-
         ItemStack editorBook = createEditorBook(field);
-        player.getInventory().setItemInMainHand(editorBook);
         activeEdits.put(uuid, field);
+        openVirtualEditor(player, editorBook);
 
         player.sendMessage(lang.getMessage(field == SplashField.TITLE ?
             "splash.started_title" : "splash.started_subtitle"));
@@ -99,7 +95,6 @@ public class SplashEditorManager implements Listener {
         }
 
         event.setCancelled(true);
-        restoreItem(player);
 
         String newValue = extractFirstPage(meta);
         if (newValue.isEmpty()) {
@@ -131,20 +126,22 @@ public class SplashEditorManager implements Listener {
         }
 
         activeEdits.remove(uuid);
-        restoreItem(event.getPlayer());
     }
 
     private boolean isSplashEditorBook(BookMeta meta) {
         return meta != null && meta.getPersistentDataContainer().has(editorKey, PersistentDataType.STRING);
     }
 
-    private void restoreItem(Player player) {
-        UUID uuid = player.getUniqueId();
-        ItemStack previous = previousMainHand.remove(uuid);
-        ItemStack replacement = (previous == null || previous.getType() == Material.AIR)
-            ? new ItemStack(Material.AIR)
-            : previous;
-        player.getInventory().setItemInMainHand(replacement);
+    private void openVirtualEditor(Player player, ItemStack editorBook) {
+        ItemStack original = player.getInventory().getItemInMainHand();
+        ItemStack originalCopy = original == null ? new ItemStack(Material.AIR) : original.clone();
+
+        player.getInventory().setItemInMainHand(editorBook);
+        player.openBook(editorBook);
+
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            player.getInventory().setItemInMainHand(originalCopy);
+        });
     }
 
     private String extractFirstPage(BookMeta meta) {
