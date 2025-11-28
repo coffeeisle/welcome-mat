@@ -731,6 +731,13 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 }
                 applyAnimationSelection(player, registry, args[2]);
                 return;
+            case "test":
+                if (args.length < 3) {
+                    player.sendMessage(lang.getMessage("effects.animation.test_usage"));
+                    return;
+                }
+                performAnimationTest(player, registry, args[2]);
+                return;
             default:
                 applyAnimationSelection(player, registry, args[1]);
         }
@@ -738,6 +745,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
 
     private void sendAnimationStatus(Player player, AnimationRegistry registry, String preference) {
         LanguageManager lang = plugin.getLanguageManager();
+        player.sendMessage(lang.getMessage("effects.animation.header"));
         if (preference == null || DatabaseManager.ANIMATION_FOLLOW_PACK.equalsIgnoreCase(preference)) {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("animation", describeAnimation(registry, plugin.getConfigManager().getEffectiveAnimationId()));
@@ -771,6 +779,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
             placeholders.put("name", animation.getDisplayName());
             player.sendMessage(lang.getMessage("effects.animation.list_entry", placeholders));
         }
+        player.sendMessage(lang.getMessage("effects.animation.list_hint"));
     }
 
     private void applyAnimationSelection(Player player, AnimationRegistry registry, String selectionRaw) {
@@ -780,7 +789,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        String selection = selectionRaw.toLowerCase();
+        String selection = selectionRaw.trim().toLowerCase();
         DatabaseManager db = plugin.getDatabaseManager();
 
         if (selection.equals("pack") || selection.equals("default")) {
@@ -807,14 +816,70 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
     }
 
     private String describeAnimation(AnimationRegistry registry, String animationId) {
+        LanguageManager lang = plugin.getLanguageManager();
         if (animationId == null || animationId.isEmpty()) {
-            return "unknown";
+            return lang.getMessage("effects.animation.describe_unknown");
         }
+
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("id", animationId);
         Animation animation = registry.getAnimation(animationId);
         if (animation == null) {
-            return animationId;
+            return lang.getMessage("effects.animation.describe_missing", placeholders);
         }
-        return animation.getDisplayName() + " (" + animation.getName() + ")";
+        placeholders.put("name", animation.getDisplayName());
+        return lang.getMessage("effects.animation.describe_known", placeholders);
+    }
+
+    private void performAnimationTest(Player player, AnimationRegistry registry, String selectionRaw) {
+        LanguageManager lang = plugin.getLanguageManager();
+        if (selectionRaw == null || selectionRaw.trim().isEmpty()) {
+            player.sendMessage(lang.getMessage("effects.animation.test_usage"));
+            return;
+        }
+
+        String selection = selectionRaw.trim().toLowerCase();
+        Map<String, String> placeholders = new HashMap<>();
+
+        if (selection.equals("pack") || selection.equals("default")) {
+            String animationId = plugin.getConfigManager().getEffectiveAnimationId();
+            if (animationId == null || animationId.isEmpty() || !registry.playAnimation(player, animationId)) {
+                player.sendMessage(lang.getMessage("effects.animation.test_pack_unavailable"));
+                return;
+            }
+            placeholders.put("animation", describeAnimation(registry, animationId));
+            player.sendMessage(lang.getMessage("effects.animation.test_pack", placeholders));
+            return;
+        }
+
+        if (selection.equals("random")) {
+            String randomId = registry.pickRandomAnimationId();
+            if (randomId == null) {
+                player.sendMessage(lang.getMessage("effects.animation.test_random_unavailable"));
+                return;
+            }
+            if (!registry.playAnimation(player, randomId)) {
+                player.sendMessage(lang.getMessage("effects.animation.test_failed"));
+                return;
+            }
+            placeholders.put("animation", describeAnimation(registry, randomId));
+            player.sendMessage(lang.getMessage("effects.animation.test_random", placeholders));
+            return;
+        }
+
+        if (!registry.hasAnimation(selection)) {
+            placeholders.put("id", selectionRaw);
+            player.sendMessage(lang.getMessage("effects.animation.test_invalid", placeholders));
+            return;
+        }
+
+        if (!registry.playAnimation(player, selection)) {
+            player.sendMessage(lang.getMessage("effects.animation.test_failed"));
+            return;
+        }
+
+        placeholders.put("animation", describeAnimation(registry, selection));
+        player.sendMessage(lang.getMessage("effects.animation.test_success", placeholders));
     }
 
     @Override
@@ -846,6 +911,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                     List<String> animationOptions = new ArrayList<>();
                     animationOptions.add("list");
                     animationOptions.add("set");
+                    animationOptions.add("test");
                     animationOptions.add("pack");
                     animationOptions.add("random");
                     animationOptions.addAll(plugin.getAnimationRegistry().getAvailableAnimations());
@@ -854,6 +920,14 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 3 && args[0].equalsIgnoreCase("animation") && args[1].equalsIgnoreCase("set")) {
+            List<String> selections = new ArrayList<>();
+            selections.add("pack");
+            selections.add("random");
+            selections.addAll(plugin.getAnimationRegistry().getAvailableAnimations());
+            return filterCompletions(selections.toArray(new String[0]), args[2]);
+        }
+
+        if (args.length == 3 && args[0].equalsIgnoreCase("animation") && args[1].equalsIgnoreCase("test")) {
             List<String> selections = new ArrayList<>();
             selections.add("pack");
             selections.add("random");
