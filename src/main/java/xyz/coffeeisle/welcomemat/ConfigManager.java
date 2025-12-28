@@ -209,7 +209,7 @@ public class ConfigManager {
         return ChatColor.translateAlternateColorCodes('&', message.replace("%player%", playerName));
     }
 
-    public String getJoinTitle() {
+    public String getJoinTitle(String playerName) {
         String raw;
         if (usePackForSplash()) {
             raw = plugin.getLanguageManager().getPackSplashTitle(getCurrentMessagePack());
@@ -219,10 +219,19 @@ public class ConfigManager {
         if (raw == null || raw.isEmpty()) {
             raw = DEFAULT_TITLE;
         }
+
+        if (playerName != null) {
+            raw = raw.replace("%player%", playerName);
+        }
+
         return ChatColor.translateAlternateColorCodes('&', raw);
     }
 
-    public String getJoinSubtitle() {
+    public String getJoinTitle() {
+        return getJoinTitle(null);
+    }
+
+    public String getJoinSubtitle(String playerName) {
         String raw;
         if (usePackForSplash()) {
             raw = plugin.getLanguageManager().getPackSplashSubtitle(getCurrentMessagePack());
@@ -232,7 +241,16 @@ public class ConfigManager {
         if (raw == null || raw.isEmpty()) {
             raw = DEFAULT_SUBTITLE;
         }
+
+        if (playerName != null) {
+            raw = raw.replace("%player%", playerName);
+        }
+
         return ChatColor.translateAlternateColorCodes('&', raw);
+    }
+
+    public String getJoinSubtitle() {
+        return getJoinSubtitle(null);
     }
 
     public String getRawJoinTitle() {

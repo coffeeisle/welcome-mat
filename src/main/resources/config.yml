@@ -32,6 +32,7 @@ messages:
   leave:
     - "&e%player% &chas left the server!"
 
+# Titles and Subtitles (Supports %player%)
 titles:
   join:
     title: "&6Welcome!"

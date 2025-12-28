@@ -37,14 +37,14 @@ public class PlayerEventListener implements Listener {
         if (config.isJoinTitleEnabled()) {
             try {
                 player.sendTitle(
-                    config.getJoinTitle(),
-                    config.getJoinSubtitle(),
+                    config.getJoinTitle(player.getName()),
+                    config.getJoinSubtitle(player.getName()),
                     20, 60, 20
                 );
             } catch (NoSuchMethodError e) {
                 player.sendTitle(
-                    config.getJoinTitle(),
-                    config.getJoinSubtitle()
+                    config.getJoinTitle(player.getName()),
+                    config.getJoinSubtitle(player.getName())
                 );
             }
         }

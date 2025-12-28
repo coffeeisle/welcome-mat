@@ -31,7 +31,7 @@ message-packs:
         - "&7We'll miss you, &e%player%&7! Come back soon! &d💖"
         - "&e%player% &7went to take a break! &d✨"
     splash:
-      title: "&dWelcome Back!"
+      title: "&dWelcome Back, %player%!"
       subtitle: "&eWe're so happy you're here!"
   professional:
     name: "Professional"
