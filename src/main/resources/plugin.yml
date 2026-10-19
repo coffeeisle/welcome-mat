@@ -11,17 +11,56 @@ commands:
     usage: /<command> [reload|help|sound]
     aliases: [wm]
 permissions:
+  # ---- Player-facing (default: true) ----
+  welcomemat.player:
+    description: Grants all standard player permissions for WelcomeMat
+    default: true
+    children:
+      welcomemat.sound.toggle: true
+      welcomemat.effects: true
+      welcomemat.animation: true
+      welcomemat.toggle: true
+
+  welcomemat.sound.toggle:
+    description: Allows toggling join/leave sounds
+    default: true
+  welcomemat.effects:
+    description: Allows toggling personal join effects
+    default: true
+  welcomemat.animation:
+    description: Allows selecting a custom join animation
+    default: true
+  welcomemat.toggle:
+    description: Allows players to enable/disable WelcomeMat for themselves
+    default: true
+
+  # ---- Admin-facing (default: op) ----
+  welcomemat.admin:
+    description: Grants all administrative permissions for WelcomeMat
+    default: op
+    children:
+      welcomemat.reload: true
+      welcomemat.pack: true
+      welcomemat.config: true
+      welcomemat.language: true
+      welcomemat.gui: true
+      welcomemat.splash: true
+      welcomemat.animation.test: true
+
   welcomemat.reload:
     description: Allows reloading the plugin configuration
     default: op
   welcomemat.bypass:
     description: Bypasses welcome messages
     default: false
-  welcomemat.sound.toggle:
-    description: Allows toggling join/leave sounds
-    default: true
   welcomemat.pack:
     description: Allows changing message packs
+    default: op
+  welcomemat.pack.create:
+    description: Allows creating new message packs
+    default: op
+  welcomemat.pack.mode:
+    description: Allows changing message pack modes
     default: op
   welcomemat.config:
     description: Allows modifying plugin configuration
@@ -29,9 +68,20 @@ permissions:
   welcomemat.language:
     description: Allows changing the plugin language
     default: op
-  welcomemat.effects:
-    description: Allows toggling personal join effects
-    default: true
-  welcomemat.animation:
-    description: Allows selecting a custom join animation
-    default: true
+  welcomemat.gui:
+    description: Allows opening the settings GUI
+    default: op
+  welcomemat.splash:
+    description: Allows viewing/editing the welcome title/subtitle
+    default: op
+  welcomemat.animation.test:
+    description: Allows testing join animations
+    default: op
+
+  # Wildcard
+  welcomemat.*:
+    description: Grants all WelcomeMat permissions except bypass
+    default: op
+    children:
+      welcomemat.player: true
+      welcomemat.admin: true

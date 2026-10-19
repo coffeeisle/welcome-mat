@@ -35,3 +35,4 @@ docs/
 .vscode
 .github
 *.jar
+/.graymatter

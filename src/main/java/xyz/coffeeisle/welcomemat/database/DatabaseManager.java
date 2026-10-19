@@ -31,11 +31,12 @@ public class DatabaseManager {
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
             
-            // Create player_preferences table with both sound and effect columns
+            // Create player_preferences table with sound, effect, and plugin-enabled columns
             stmt.execute("CREATE TABLE IF NOT EXISTS player_preferences ("
                     + "uuid VARCHAR(36) PRIMARY KEY,"
                     + "sounds_enabled BOOLEAN DEFAULT TRUE,"
                     + "effects_enabled BOOLEAN DEFAULT TRUE,"
+                    + "plugin_enabled BOOLEAN DEFAULT TRUE,"
                     + "selected_animation TEXT DEFAULT 'PACK'"
                     + ")");
             
@@ -50,6 +51,13 @@ public class DatabaseManager {
             try (ResultSet rs = conn.getMetaData().getColumns(null, null, "player_preferences", "selected_animation")) {
                 if (!rs.next()) {
                     stmt.execute("ALTER TABLE player_preferences ADD COLUMN selected_animation TEXT DEFAULT 'PACK'");
+                }
+            }
+
+            // Add plugin-enabled column if missing
+            try (ResultSet rs = conn.getMetaData().getColumns(null, null, "player_preferences", "plugin_enabled")) {
+                if (!rs.next()) {
+                    stmt.execute("ALTER TABLE player_preferences ADD COLUMN plugin_enabled BOOLEAN DEFAULT TRUE");
                 }
             }
             
@@ -141,6 +149,48 @@ public class DatabaseManager {
         }
     }
 
+    public boolean getPluginEnabled(UUID uuid) {
+        if (!initialized) {
+            return true;
+        }
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT plugin_enabled FROM player_preferences WHERE uuid = ?")) {
+
+            stmt.setString(1, uuid.toString());
+            ResultSet rs = stmt.executeQuery();
+
+            if (!rs.next()) {
+                insertDefaultPreferences(conn, uuid);
+                return true;
+            }
+
+            return rs.getBoolean("plugin_enabled");
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Database error, using default: " + e.getMessage());
+            return true;
+        }
+    }
+
+    public void setPluginEnabled(UUID uuid, boolean enabled) {
+        if (!initialized) {
+            return;
+        }
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "INSERT INTO player_preferences (uuid, plugin_enabled) VALUES (?, ?) " +
+                             "ON CONFLICT(uuid) DO UPDATE SET plugin_enabled = excluded.plugin_enabled")) {
+
+            stmt.setString(1, uuid.toString());
+            stmt.setBoolean(2, enabled);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Failed to save plugin preference: " + e.getMessage());
+        }
+    }
+
     public void setPreferences(UUID uuid, boolean sounds, boolean effects) {
         if (!initialized) {
             return;
@@ -207,8 +257,8 @@ public class DatabaseManager {
 
     private void insertDefaultPreferences(Connection conn, UUID uuid) throws SQLException {
         try (PreparedStatement insert = conn.prepareStatement(
-            "INSERT OR IGNORE INTO player_preferences (uuid, sounds_enabled, effects_enabled, selected_animation) " +
-                "VALUES (?, 1, 1, ?)")) {
+            "INSERT OR IGNORE INTO player_preferences (uuid, sounds_enabled, effects_enabled, plugin_enabled, selected_animation) " +
+                "VALUES (?, 1, 1, 1, ?)")) {
             insert.setString(1, uuid.toString());
             insert.setString(2, ANIMATION_FOLLOW_PACK);
             insert.executeUpdate();

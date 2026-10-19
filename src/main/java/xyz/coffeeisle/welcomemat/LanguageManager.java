@@ -31,7 +31,7 @@ public class LanguageManager {
     private File customsFile;
     private String currentLanguage;
     private final Map<String, String> languageCache = new HashMap<>();
-    private static final String MESSAGES_VERSION = "1.3";
+    private static final String MESSAGES_VERSION = "1.5";
     private static final String CUSTOMS_VERSION = "1.0";
 
     public LanguageManager(WelcomeMat plugin) {
@@ -53,9 +53,29 @@ public class LanguageManager {
         }
 
         loadCustomPacks();
+        ensureBuiltInLanguages();
 
         currentLanguage = messages.getString("selected-language", "english");
         languageCache.clear();
+    }
+
+    private void ensureBuiltInLanguages() {
+        // Make sure all built-in languages exist even if migration was skipped
+        // (e.g. the user's messages-version was already current).
+        String[] builtIns = {"english", "spanish", "french", "romanian", "german", "chinese"};
+        ConfigurationSection defaults = messages.getDefaults() != null ? messages.getDefaults().getConfigurationSection("languages") : null;
+        if (defaults == null) return;
+
+        boolean changed = false;
+        for (String lang : builtIns) {
+            if (messages.isConfigurationSection("languages." + lang)) continue;
+            if (!defaults.isConfigurationSection(lang)) continue;
+            messages.set("languages." + lang, defaults.getConfigurationSection(lang).getValues(false));
+            changed = true;
+        }
+        if (changed) {
+            saveYaml(messages, messagesFile, "messages.yml");
+        }
     }
 
     private void loadCustomPacks() {

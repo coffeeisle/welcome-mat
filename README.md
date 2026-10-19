@@ -30,7 +30,12 @@ WelcomeMat is available on Modrinth! Click the button below to download:
 
 ## 🔄 Compatibility
 
-WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.10 and is fully tested on Bukkit/Spigot, Paper, Purpur, and Folia (regionized multithreading). The Folia build uses region-aware schedulers so the same jar runs safely on both single-threaded and regionized servers.
+WelcomeMat is compatible with Minecraft versions 1.13 through 26.3 (including 26.1.2, 26.2, and 26.3) and is fully tested on Bukkit/Spigot, Paper, Purpur, and Folia (regionized multithreading). Minecraft 26.1+ requires Java 25. The Folia build uses region-aware schedulers so the same jar runs safely on both single-threaded and regionized servers.
+
+### 🚀 What's New in v1.4.0
+- **Minecraft 26.x support:** Fully compatible with Minecraft 26.1.2, 26.2, and 26.3 on Bukkit/Spigot, Paper, Purpur, and Folia.
+- **Java 25:** Updated build toolchain to Java 25 to match the Minecraft 26.1+ runtime requirement.
+- **Particle data fix:** Confetti Burst now supplies color data for `ENTITY_EFFECT` particles, preventing `missing required data class org.bukkit.Color` errors on 26.x servers.
 
 ### 🚀 What's New in v1.3.3
 - **Animation test polish:** `/wm animation test <name|random>` now cycles through every registered animation, making it easier to preview the expanded effect roster on live servers.
@@ -85,6 +90,8 @@ WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.10 and is ful
 | `/wm gui` | `welcomemat.config` | Opens the in-game Settings GUI for packs, languages, sound profiles, and effects.
 | `/wm sound` | `welcomemat.sound.toggle` | Toggles join/leave sounds for the executing player.
 | `/wm effects` | `welcomemat.effects` | Enables or disables join effects for the executing player.
+| `/wm on` | `welcomemat.toggle` | Enables WelcomeMat for the executing player.
+| `/wm off` | `welcomemat.toggle` | Disables WelcomeMat for the executing player.
 | `/wm animation` | `welcomemat.animation` | Opens the animation status view; supports `list`, `set <id|pack|random>`, and `test <id|random>`.
 | `/wm pack` | `welcomemat.pack` | Selects a message pack, switches pack modes, or creates new packs with `/wm pack create <Friendly Name>`.
 | `/wm splash <title\|subtitle> [edit]` | `welcomemat.config` | Views or edits the welcome title/subtitle using clickable chat controls.
@@ -103,8 +110,8 @@ WelcomeMat is compatible with Minecraft versions 1.13 through 1.21.10 and is ful
 /wm pack mode splash custom
 
 # Update the default join sound and immediately preview it
-/wm config set sounds.join.sound ENTITY_PLAYER_LEVELUP
-/wm config set sounds.join.pitch 1.3
+/wm config set join-sound ENTITY_PLAYER_LEVELUP
+/wm config set join-sound-pitch 1.3
 ```
 
 ## 📚 Documentation

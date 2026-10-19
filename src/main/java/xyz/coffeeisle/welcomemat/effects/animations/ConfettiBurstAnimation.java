@@ -70,7 +70,7 @@ public class ConfettiBurstAnimation extends Animation {
             Color dustColor = randomColor();
             Particle.DustOptions sparkle = new Particle.DustOptions(dustColor, 0.8F);
             center.getWorld().spawnParticle(Particle.DUST, center, 5, 0.4, 0.2, 0.4, 0, sparkle);
-            center.getWorld().spawnParticle(Particle.ENTITY_EFFECT, center, 12, 0.8, 0.5, 0.8, 0.01);
+            center.getWorld().spawnParticle(Particle.ENTITY_EFFECT, center, 12, 0.8, 0.5, 0.8, 0.01, dustColor);
         }
 
         private double randomVelocity() {

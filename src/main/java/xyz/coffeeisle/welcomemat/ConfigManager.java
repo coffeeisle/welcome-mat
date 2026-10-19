@@ -277,6 +277,10 @@ public class ConfigManager {
         return config.getBoolean("features.join-message", true);
     }
 
+    public boolean isPlayerToggleAllowed() {
+        return config.getBoolean("features.allow-player-toggle", true);
+    }
+
     public boolean isLeaveMessageEnabled() {
         return config.getBoolean("features.leave-message", true);
     }
@@ -293,15 +297,40 @@ public class ConfigManager {
         return config.getBoolean("features.leave-sound", true);
     }
 
+    public String getSoundDisplayName(Sound sound) {
+        if (sound == null) return "None";
+        String name = sound.name();
+        String display = plugin.getConfig().getString("display-names.sounds." + name, null);
+        if (display != null && !display.isEmpty()) return display;
+        // Fall back to a human-friendly version of the enum name
+        String pretty = name.replace("_", " ");
+        StringBuilder sb = new StringBuilder();
+        for (String word : pretty.split(" ")) {
+            if (word.isEmpty()) continue;
+            sb.append(Character.toUpperCase(word.charAt(0)))
+               .append(word.length() > 1 ? word.substring(1).toLowerCase() : "").append(" ");
+        }
+        return sb.toString().trim();
+    }
+
+    public String getSoundDisplayName(String name) {
+        if (name == null || name.isEmpty()) return "None";
+        try {
+            return getSoundDisplayName(Sound.valueOf(name.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            return name;
+        }
+    }
+
     public Sound getJoinSound() {
         String soundName = config.getString("sounds.join.sound", "ENTITY_PLAYER_LEVELUP");
         try {
             return Sound.valueOf(soundName.toUpperCase());
         } catch (IllegalArgumentException e) {
             plugin.getLogger().warning("Invalid join sound in config: " + soundName);
-            // Try legacy sound name (1.8)
+            // Try modern sound name
             try {
-                return Sound.valueOf("LEVEL_UP");
+                return Sound.valueOf("ENTITY_PLAYER_LEVELUP");
             } catch (IllegalArgumentException ex) {
                 plugin.getLogger().warning("Fallback sound also failed. Join sounds will be disabled.");
                 return null;
@@ -314,9 +343,9 @@ public class ConfigManager {
         try {
             return Sound.valueOf(soundName.toUpperCase());
         } catch (IllegalArgumentException e) {
-            // Try legacy sound name (1.8)
+            // Try modern sound name
             try {
-                return Sound.valueOf("IRONGOLEM_DEATH");
+                return Sound.valueOf("ENTITY_IRON_GOLEM_DEATH");
             } catch (IllegalArgumentException ex) {
                 plugin.getLogger().warning("Could not find sound: " + soundName + ". Sound disabled.");
                 return null;

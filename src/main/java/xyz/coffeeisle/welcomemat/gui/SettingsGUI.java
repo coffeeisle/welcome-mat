@@ -10,8 +10,8 @@ import org.bukkit.ChatColor;
 import xyz.coffeeisle.welcomemat.WelcomeMat;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 public class SettingsGUI {
     private final WelcomeMat plugin;
@@ -22,40 +22,52 @@ public class SettingsGUI {
     }
 
     public void openMainMenu(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 27, GUI_TITLE);
+        Inventory inv = Bukkit.createInventory(null, 54, GUI_TITLE);
 
-        // Features toggle section
-        inv.setItem(10, createToggleItem("Join Message", 
+        // Section headers
+        inv.setItem(0, createHeader("Features"));
+        inv.setItem(9, createHeader("Packs & Language"));
+        inv.setItem(18, createHeader("Sound & Effects"));
+        inv.setItem(27, createHeader("Personal"));
+        inv.setItem(45, GUIUtils.createBackButton());
+
+        // Features toggles (row 1)
+        inv.setItem(1, createToggleItem("Join Message",
             plugin.getConfigManager().isJoinMessageEnabled(), Material.PAPER));
-        inv.setItem(11, createToggleItem("Leave Message", 
+        inv.setItem(2, createToggleItem("Leave Message",
             plugin.getConfigManager().isLeaveMessageEnabled(), Material.MAP));
-        inv.setItem(12, createToggleItem("Join Title", 
+        inv.setItem(3, createToggleItem("Join Title",
             plugin.getConfigManager().isJoinTitleEnabled(), Material.NAME_TAG));
-        inv.setItem(13, createToggleItem("Join Sound", 
+        inv.setItem(4, createToggleItem("Join Sound",
             plugin.getConfigManager().isJoinSoundEnabled(), Material.NOTE_BLOCK));
-        inv.setItem(14, createToggleItem("Leave Sound", 
+        inv.setItem(5, createToggleItem("Leave Sound",
             plugin.getConfigManager().isLeaveSoundEnabled(), Material.JUKEBOX));
-        
-        // Message pack selector
-        inv.setItem(15, createMenuItem("Message Pack", 
-            Material.BOOK, 
+
+        // Packs & Language (row 2)
+        inv.setItem(10, createMenuItem("Message Pack",
+            Material.BOOK,
             Arrays.asList(
                 ChatColor.GRAY + "Current: " + plugin.getConfigManager().getCurrentMessagePack(),
                 "",
                 ChatColor.YELLOW + "Click to change"
             )));
-
-        // Language selector
-        inv.setItem(16, createMenuItem("Language", 
+        inv.setItem(11, createMenuItem("Language",
             Material.WRITABLE_BOOK,
             Arrays.asList(
                 ChatColor.GRAY + "Current: " + plugin.getLanguageManager().getCurrentLanguage(),
                 "",
                 ChatColor.YELLOW + "Click to change"
             )));
+        inv.setItem(12, createMenuItem("Animations",
+            Material.FIREWORK_ROCKET,
+            Arrays.asList(
+                ChatColor.GRAY + "Current: " + plugin.getConfig().getString("effects.type", "fire_spiral"),
+                "",
+                ChatColor.YELLOW + "Click to change"
+            )));
 
-        // Sound settings
-        inv.setItem(21, createMenuItem("Sound Settings", 
+        // Sound & Effects (row 3)
+        inv.setItem(19, createMenuItem("Sound Settings",
             Material.MUSIC_DISC_CAT,
             Arrays.asList(
                 ChatColor.YELLOW + "Click to configure:",
@@ -63,15 +75,30 @@ public class SettingsGUI {
                 ChatColor.GRAY + "• Volume",
                 ChatColor.GRAY + "• Pitch"
             )));
-
-        // Join Effects toggle
         if (plugin.getConfig().getBoolean("effects.enabled")) {
-            inv.setItem(16, createToggleItem("Join Effects", 
-                plugin.getDatabaseManager().getEffectPreference(player.getUniqueId()), 
+            inv.setItem(20, createToggleItem("Join Effects",
+                plugin.getDatabaseManager().getEffectPreference(player.getUniqueId()),
                 Material.FIREWORK_ROCKET));
         }
 
+        // Personal (row 4)
+        if (plugin.getConfigManager().isPlayerToggleAllowed()) {
+            inv.setItem(28, createToggleItem("WelcomeMat",
+                plugin.getDatabaseManager().getPluginEnabled(player.getUniqueId()),
+                Material.LEVER));
+        }
+
         player.openInventory(inv);
+    }
+
+    private ItemStack createHeader(String name) {
+        ItemStack item = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.GOLD + "§l" + name);
+            item.setItemMeta(meta);
+        }
+        return item;
     }
 
     private ItemStack createToggleItem(String name, boolean enabled, Material material) {
@@ -81,7 +108,7 @@ public class SettingsGUI {
             meta.setDisplayName(ChatColor.YELLOW + name);
             List<String> lore = new ArrayList<>();
             lore.add("");
-            lore.add(enabled ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled");
+            lore.add(enabled ? ChatColor.GREEN + "✔ Enabled" : ChatColor.RED + "✘ Disabled");
             lore.add("");
             lore.add(ChatColor.GRAY + "Click to toggle");
             meta.setLore(lore);
@@ -94,7 +121,7 @@ public class SettingsGUI {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(ChatColor.YELLOW + name);
+            meta.setDisplayName(ChatColor.AQUA + name);
             meta.setLore(lore);
             item.setItemMeta(meta);
         }
@@ -102,13 +129,6 @@ public class SettingsGUI {
     }
 
     protected ItemStack createBackButton() {
-        ItemStack item = new ItemStack(Material.ARROW);
-        ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(ChatColor.RED + "Back");
-            meta.setLore(Arrays.asList(ChatColor.GRAY + "Return to main menu"));
-            item.setItemMeta(meta);
-        }
-        return item;
+        return GUIUtils.createBackButton();
     }
-} 
+}

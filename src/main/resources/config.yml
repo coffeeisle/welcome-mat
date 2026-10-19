@@ -1,5 +1,5 @@
 # WelcomeMat Configuration
-config-version: "1.3"
+config-version: "1.4"
 
 # Available sounds (1.13+):
 # - BLOCK_NOTE_BLOCK_PLING
@@ -21,6 +21,7 @@ features:
   join-sound: true
   leave-sound: true
   other-players-sounds: true
+  allow-player-toggle: true
 
 messages:
   use-packs:

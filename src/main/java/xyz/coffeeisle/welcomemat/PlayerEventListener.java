@@ -26,6 +26,11 @@ public class PlayerEventListener implements Listener {
             return;
         }
 
+        // Respect per-player plugin toggle
+        if (!plugin.getDatabaseManager().getPluginEnabled(player.getUniqueId())) {
+            return;
+        }
+
         ConfigManager config = plugin.getConfigManager();
         PlayerDataManager.PlayerData playerData = playerDataManager.getPlayerData(player);
         boolean isFirstJoin = !player.hasPlayedBefore();
@@ -55,7 +60,7 @@ public class PlayerEventListener implements Listener {
                 float volume = config.getJoinSoundVolume();
                 float pitch = config.getJoinSoundPitch();
                 
-                plugin.getLogger().info("Playing join sound: " + sound.name() + 
+                plugin.getLogger().info("Playing join sound: " + plugin.getConfigManager().getSoundDisplayName(sound) + 
                     " (Volume: " + volume + ", Pitch: " + pitch + ")");
 
                 try {

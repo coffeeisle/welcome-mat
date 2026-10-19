@@ -114,16 +114,37 @@ public class GUIListener implements Listener {
             case "Language":
                 new LanguageGUI(plugin).openMenu(player);
                 return;
+            case "Animations":
+                // Open animation list via command helper
+                player.performCommand("wm animation list");
+                return;
             case "Sound Settings":
                 new SoundSettingsGUI(plugin).openMenu(player);
                 return;
+            case "Join Effects":
+                logManager.logAdminAction(player, "Toggle Join Effects",
+                    "Set to: " + !plugin.getDatabaseManager().getEffectPreference(player.getUniqueId()));
+                plugin.getDatabaseManager().setEffectPreference(player.getUniqueId(),
+                    !plugin.getDatabaseManager().getEffectPreference(player.getUniqueId()));
+                playToggleSound(player);
+                break;
+            case "WelcomeMat":
+                if (!plugin.getConfigManager().isPlayerToggleAllowed()) return;
+                boolean current = plugin.getDatabaseManager().getPluginEnabled(player.getUniqueId());
+                plugin.getDatabaseManager().setPluginEnabled(player.getUniqueId(), !current);
+                playToggleSound(player);
+                break;
         }
         new SettingsGUI(plugin).openMainMenu(player);
     }
 
     private void handleLanguageMenu(Player player, ItemStack clicked) {
-        String lang = ChatColor.stripColor(clicked.getItemMeta().getDisplayName()).toLowerCase();
-        if (lang.equals("español")) lang = "spanish";
+        ItemMeta meta = clicked.getItemMeta();
+        if (meta == null) return;
+        String lang = meta.getPersistentDataContainer().get(new LanguageGUI(plugin).getLangKey(), PersistentDataType.STRING);
+        if (lang == null || lang.isEmpty()) {
+            lang = ChatColor.stripColor(meta.getDisplayName()).toLowerCase();
+        }
         if (plugin.getLanguageManager().setLanguage(lang)) {
             logManager.logAdminAction(player, "Change Language", "Set to: " + lang);
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 2.0f);
@@ -181,7 +202,7 @@ public class GUIListener implements Listener {
                     }
                 }
                 config.set("sounds.join.sound", sounds[index].name());
-                logManager.logAdminAction(player, "Change Join Sound", "Set to: " + sounds[index].name());
+                logManager.logAdminAction(player, "Change Join Sound", "Set to: " + plugin.getConfigManager().getSoundDisplayName(sounds[index]));
                 player.playSound(player.getLocation(), sounds[index], 1.0f, 1.0f);
                 break;
 
@@ -198,7 +219,7 @@ public class GUIListener implements Listener {
                     }
                 }
                 config.set("sounds.leave.sound", leaveSounds[leaveIndex].name());
-                logManager.logAdminAction(player, "Change Leave Sound", "Set to: " + leaveSounds[leaveIndex].name());
+                logManager.logAdminAction(player, "Change Leave Sound", "Set to: " + plugin.getConfigManager().getSoundDisplayName(leaveSounds[leaveIndex]));
                 player.playSound(player.getLocation(), leaveSounds[leaveIndex], 1.0f, 1.0f);
                 break;
 

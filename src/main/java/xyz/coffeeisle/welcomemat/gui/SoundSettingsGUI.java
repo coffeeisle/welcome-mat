@@ -25,7 +25,7 @@ public class SoundSettingsGUI {
 
         // Join Sound selector
         inv.setItem(11, createSoundItem("Join Sound", 
-            plugin.getConfigManager().getJoinSound().name(),
+            plugin.getConfigManager().getSoundDisplayName(plugin.getConfigManager().getJoinSound()),
             Material.NOTE_BLOCK));
 
         // Join Volume slider
@@ -38,7 +38,7 @@ public class SoundSettingsGUI {
 
         // Leave Sound selector
         inv.setItem(14, createSoundItem("Leave Sound", 
-            plugin.getConfigManager().getLeaveSound().name(),
+            plugin.getConfigManager().getSoundDisplayName(plugin.getConfigManager().getLeaveSound()),
             Material.NOTE_BLOCK));
 
         // Leave Volume slider

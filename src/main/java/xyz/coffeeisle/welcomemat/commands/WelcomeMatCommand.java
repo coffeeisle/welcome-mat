@@ -73,7 +73,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(ChatColor.RED + "This command can only be used by players!");
                     return true;
                 }
-                if (!sender.hasPermission("welcomemat.config")) {
+                if (!sender.hasPermission("welcomemat.config") && !sender.hasPermission("welcomemat.gui")) {
                     sender.sendMessage(ChatColor.RED + "You don't have permission to access the settings menu!");
                     return true;
                 }
@@ -81,6 +81,12 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 break;
             case "effects":
                 handleEffects(sender);
+                break;
+            case "on":
+                handlePluginToggle(sender, true);
+                break;
+            case "off":
+                handlePluginToggle(sender, false);
                 break;
             default:
                 sender.sendMessage(ChatColor.RED + "Unknown command. Use /wm help for help.");
@@ -126,7 +132,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
             } catch (IllegalArgumentException e) {
                 // Fallback for older versions
                 try {
-                    player.playSound(player.getLocation(), Sound.valueOf("NOTE_PLING"), 1.0f, 1.0f);
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
                 } catch (IllegalArgumentException ex) {
                     // Ignore if sound doesn't exist
                 }
@@ -341,24 +347,24 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 if (args.length < 3) {
                     sender.sendMessage(ChatColor.RED + "Usage: /wm config set <path> <value>");
                     // Show available paths
-                    sender.sendMessage(ChatColor.GRAY + "Available paths:");
+                    sender.sendMessage(ChatColor.GRAY + "Available settings:");
                     List<String> commonPaths = new ArrayList<>();
-                    commonPaths.add("features.join-message");
-                    commonPaths.add("features.leave-message");
-                    commonPaths.add("sounds.join.sound");
-                    commonPaths.add("sounds.leave.sound");
-                    commonPaths.add("effects.type");
-                    commonPaths.add("message-packs.selected");
+                    commonPaths.add("join-message");
+                    commonPaths.add("leave-message");
+                    commonPaths.add("join-sound");
+                    commonPaths.add("leave-sound");
+                    commonPaths.add("effect-type");
+                    commonPaths.add("message-pack");
                     
                     for (String commonPath : commonPaths) {
-                        sender.sendMessage(ChatColor.GRAY + "• " + commonPath);
+                        sender.sendMessage(ChatColor.GRAY + "• " + ChatColor.AQUA + commonPath);
                     }
                     return;
                 }
                 
                 if (args.length < 4) {
-                    String path = args[2];
-                    sender.sendMessage(ChatColor.RED + "Usage: /wm config set " + path + " <value>");
+                    String path = resolveConfigPath(args[2]);
+                    sender.sendMessage(ChatColor.RED + "Usage: /wm config set " + ChatColor.AQUA + friendlyConfigName(args[2]) + ChatColor.RED + " <value>");
                     
                     // Show available values based on the path
                     if (path.endsWith(".sound")) {
@@ -378,7 +384,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                     }
                     return;
                 }
-                String path = args[2];
+                String path = resolveConfigPath(args[2]);
                 String value = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
                 
                 // Handle sound settings specially
@@ -409,7 +415,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                         
                         // Save the config
                         config.set(path, value);
-                        sender.sendMessage(ChatColor.GREEN + "Set " + ChatColor.YELLOW + path + 
+                        sender.sendMessage(ChatColor.GREEN + "Set " + ChatColor.AQUA + friendlyConfigName(args[2]) + 
                             ChatColor.GREEN + " to: " + ChatColor.YELLOW + value + 
                             ChatColor.GREEN + " (Sound previewed!)");
                         
@@ -454,11 +460,11 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                                     config.getFloat(path.substring(0, path.lastIndexOf('.')) + ".pitch", 1.0f);
                                 
                                 player.playSound(player.getLocation(), sound, volume, pitch);
-                                sender.sendMessage(ChatColor.GREEN + "Set " + ChatColor.YELLOW + path + 
+                                sender.sendMessage(ChatColor.GREEN + "Set " + ChatColor.AQUA + friendlyConfigName(args[2]) + 
                                     ChatColor.GREEN + " to: " + ChatColor.YELLOW + value + 
                                     ChatColor.GREEN + " (Sound previewed!)");
                             } catch (IllegalArgumentException e) {
-                                sender.sendMessage(ChatColor.GREEN + "Set " + ChatColor.YELLOW + path + 
+                                sender.sendMessage(ChatColor.GREEN + "Set " + ChatColor.AQUA + friendlyConfigName(args[2]) + 
                                     ChatColor.GREEN + " to: " + ChatColor.YELLOW + value + 
                                     ChatColor.RED + " (Could not preview sound)");
                             }
@@ -472,49 +478,50 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 
                 // Handle other config settings normally
                 config.set(path, value);
-                sender.sendMessage(ChatColor.GREEN + "Set " + ChatColor.YELLOW + path + 
+                sender.sendMessage(ChatColor.GREEN + "Set " + ChatColor.AQUA + friendlyConfigName(args[2]) + 
                     ChatColor.GREEN + " to: " + ChatColor.YELLOW + value);
                 break;
 
             case "get":
                 if (args.length < 3) {
-                    sender.sendMessage(ChatColor.RED + "Usage: /wm config get <path>");
+                    sender.sendMessage(ChatColor.RED + "Usage: /wm config get " + ChatColor.AQUA + "<name>");
                     return;
                 }
-                Object val = config.get(args[2]);
+                String getPath = resolveConfigPath(args[2]);
+                Object val = config.get(getPath);
                 if (val == null) {
-                    sender.sendMessage(ChatColor.RED + "No value found for path: " + args[2]);
+                    sender.sendMessage(ChatColor.RED + "No value found for: " + ChatColor.AQUA + friendlyConfigName(args[2]));
                     return;
                 }
                 
                 // Pretty print the value based on type
                 if (val instanceof ConfigurationSection) {
-                    String displayPath = plugin.getConfig().getString("display-names.config_paths." + args[2], args[2]);
-                    sender.sendMessage(ChatColor.GOLD + "Section " + ChatColor.YELLOW + displayPath + ChatColor.GOLD + ":");
+                    String displayPath = plugin.getConfig().getString("display-names.config_paths." + getPath, friendlyConfigName(args[2]));
+                    sender.sendMessage(ChatColor.GOLD + "Section " + ChatColor.AQUA + displayPath + ChatColor.GOLD + ":");
                     ConfigurationSection section = (ConfigurationSection) val;
                     for (String key : section.getKeys(false)) {
                         Object sectionValue = section.get(key);
-                        String displayKey = plugin.getConfig().getString("display-names." + args[2] + "." + key, key);
+                        String displayKey = plugin.getConfig().getString("display-names." + getPath + "." + key, key);
                         String displayValue = formatValue(sectionValue);
                         sender.sendMessage(ChatColor.YELLOW + "  " + displayKey + ": " + ChatColor.WHITE + displayValue);
                     }
                 } else {
-                    String displayPath = plugin.getConfig().getString("display-names.config_paths." + args[2], args[2]);
+                    String displayPath = plugin.getConfig().getString("display-names.config_paths." + getPath, friendlyConfigName(args[2]));
                     String displayValue = formatValue(val);
                     sender.sendMessage(ChatColor.GOLD + displayPath + ": " + ChatColor.YELLOW + displayValue);
                 }
                 break;
 
             case "list":
-                String listPath = args.length > 2 ? args[2] : "";
+                String listPath = args.length > 2 ? resolveConfigPath(args[2]) : "";
                 List<String> keys = config.getKeys(listPath);
                 if (keys.isEmpty()) {
                     sender.sendMessage(ChatColor.RED + "No configuration keys found" + 
-                        (listPath.isEmpty() ? "" : " for path: " + listPath));
+                        (listPath.isEmpty() ? "" : " for: " + ChatColor.AQUA + friendlyConfigName(args[2])));
                     return;
                 }
                 sender.sendMessage(ChatColor.GOLD + "Configuration keys" + 
-                    (listPath.isEmpty() ? "" : " in " + listPath) + ":");
+                    (listPath.isEmpty() ? "" : " in " + ChatColor.AQUA + friendlyConfigName(args[2])) + ":");
                 keys.forEach(key -> sender.sendMessage(ChatColor.YELLOW + "• " + key));
                 break;
 
@@ -526,7 +533,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
     private void handleSplash(CommandSender sender, String[] args) {
         LanguageManager lang = plugin.getLanguageManager();
 
-        if (!sender.hasPermission("welcomemat.config")) {
+        if (!sender.hasPermission("welcomemat.config") && !sender.hasPermission("welcomemat.splash")) {
             sender.sendMessage(lang.getMessage("splash.no_permission"));
             return;
         }
@@ -629,35 +636,25 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         }
 
         LanguageManager langManager = plugin.getLanguageManager();
+        String available = String.join(", ", langManager.getAvailableLanguages());
         if (args.length < 2) {
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("language", langManager.getCurrentLanguage());
-            placeholders.put("languages", "english, spanish");  // Simplified language list
+            placeholders.put("languages", available);
             sender.sendMessage(langManager.getMessage("language.current", placeholders));
             sender.sendMessage(langManager.getMessage("language.available", placeholders));
             return;
         }
 
         String language = args[1].toLowerCase();
-        // Map user-friendly names to language codes
-        switch (language) {
-            case "english":
-            case "spanish":
-                if (langManager.setLanguage(language)) {
-                    Map<String, String> placeholders = new HashMap<>();
-                    placeholders.put("language", language);
-                    sender.sendMessage(langManager.getMessage("language.changed", placeholders));
-                } else {
-                    Map<String, String> placeholders = new HashMap<>();
-                    placeholders.put("languages", "english, spanish");
-                    sender.sendMessage(langManager.getMessage("language.invalid", placeholders));
-                }
-                break;
-            default:
-                Map<String, String> placeholders = new HashMap<>();
-                placeholders.put("languages", "english, spanish");
-                sender.sendMessage(langManager.getMessage("language.invalid", placeholders));
-                break;
+        if (langManager.setLanguage(language)) {
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("language", language);
+            sender.sendMessage(langManager.getMessage("language.changed", placeholders));
+        } else {
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("languages", available);
+            sender.sendMessage(langManager.getMessage("language.invalid", placeholders));
         }
     }
 
@@ -887,8 +884,24 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
-            String[] commands = {"reload", "sound", "pack", "config", "help", "language", "gui", "splash", "animation"};
-            return filterCompletions(commands, args[0]);
+            List<String> commands = new ArrayList<>();
+            commands.add("help");
+            if (sender.hasPermission("welcomemat.reload")) commands.add("reload");
+            if (sender.hasPermission("welcomemat.sound.toggle")) commands.add("sound");
+            if (sender.hasPermission("welcomemat.pack")) commands.add("pack");
+            if (sender.hasPermission("welcomemat.config")) commands.add("config");
+            if (sender.hasPermission("welcomemat.config")) commands.add("gui");
+            if (sender.hasPermission("welcomemat.config")) commands.add("splash");
+            if (sender.hasPermission("welcomemat.language")) commands.add("language");
+            if (sender.hasPermission("welcomemat.animation")) commands.add("animation");
+            if (sender.hasPermission("welcomemat.effects")) commands.add("effects");
+            // Player self-toggle (only if allowed by admin)
+            if (sender instanceof Player && sender.hasPermission("welcomemat.toggle")
+                    && plugin.getConfigManager().isPlayerToggleAllowed()) {
+                commands.add("on");
+                commands.add("off");
+            }
+            return filterCompletions(commands.toArray(new String[0]), args[0]);
         }
 
         if (args.length == 2) {
@@ -904,7 +917,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 case "config":
                     return filterCompletions(new String[]{"set", "get", "list"}, args[1]);
                 case "language":
-                    return filterCompletions(new String[]{"english", "spanish"}, args[1]);
+                    return filterCompletions(new String[]{"english", "spanish", "french", "romanian", "german", "chinese"}, args[1]);
                 case "splash":
                     return filterCompletions(new String[]{"title", "subtitle"}, args[1]);
                 case "animation":
@@ -950,48 +963,32 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 // Add common configuration paths
                 paths.addAll(plugin.getConfigManager().getKeys(""));
                 
-                // Add feature-specific paths
-                paths.add("features.join-message");
-                paths.add("features.leave-message");
-                paths.add("features.join-title");
-                paths.add("features.join-sound");
-                paths.add("features.leave-sound");
-                paths.add("features.other-players-sounds");
-                
-                // Add sound-specific paths for better navigation
-                if (args[2].toLowerCase().startsWith("sounds") || args[2].isEmpty()) {
-                    paths.add("sounds.join.sound");
-                    paths.add("sounds.join.volume");
-                    paths.add("sounds.join.pitch");
-                    paths.add("sounds.leave.sound");
-                    paths.add("sounds.leave.volume");
-                    paths.add("sounds.leave.pitch");
+                // Add feature-specific settings (friendly names)
+                paths.add("join-message");
+                paths.add("leave-message");
+                paths.add("join-title");
+                paths.add("join-sound");
+                paths.add("leave-sound");
+
+                // Add sound-specific settings
+                if (args[2].toLowerCase().startsWith("join") || args[2].toLowerCase().startsWith("leave") || args[2].isEmpty()) {
+                    paths.add("join-sound");
+                    paths.add("join-sound-volume");
+                    paths.add("join-sound-pitch");
+                    paths.add("leave-sound");
+                    paths.add("leave-sound-volume");
+                    paths.add("leave-sound-pitch");
                 }
-                
-                // Add effects-specific paths
-                if (args[2].toLowerCase().startsWith("effects") || args[2].isEmpty()) {
-                    paths.add("effects.enabled");
-                    paths.add("effects.type");
-                    paths.add("effects.duration");
-                    paths.add("effects.particles.primary");
-                    paths.add("effects.particles.secondary");
+
+                // Add effects-specific settings
+                if (args[2].toLowerCase().startsWith("effect") || args[2].isEmpty()) {
+                    paths.add("effects-enabled");
+                    paths.add("effect-type");
                 }
-                
-                // Add message-specific paths
-                if (args[2].toLowerCase().startsWith("messages") || args[2].isEmpty()) {
-                    paths.add("messages.join");
-                    paths.add("messages.leave");
-                }
-                
-                // Add titles-specific paths
-                if (args[2].toLowerCase().startsWith("titles") || args[2].isEmpty()) {
-                    paths.add("titles.join.title");
-                    paths.add("titles.join.subtitle");
-                }
-                
-                // Add message-packs paths
-                if (args[2].toLowerCase().startsWith("message-packs") || args[2].isEmpty()) {
-                    paths.add("message-packs.selected");
+
+                // Add message-packs settings
+                if (args[2].toLowerCase().startsWith("message") || args[2].isEmpty()) {
+                    paths.add("message-pack");
                 }
             }
             
@@ -1076,6 +1073,57 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         return sounds.toArray(new String[0]);
     }
 
+    private String resolveConfigPath(String input) {
+        if (input == null) return "";
+        String key = input.toLowerCase().replace("_", "-").trim();
+        // Already a dotted path: pass through
+        if (key.contains(".")) return input;
+        switch (key) {
+            case "join-message": return "features.join-message";
+            case "leave-message": return "features.leave-message";
+            case "join-title": return "features.join-title";
+            case "join-sound": return "sounds.join.sound";
+            case "leave-sound": return "sounds.leave.sound";
+            case "join-sound-volume":
+            case "join-volume": return "sounds.join.volume";
+            case "leave-sound-volume":
+            case "leave-volume": return "sounds.leave.volume";
+            case "join-sound-pitch":
+            case "join-pitch": return "sounds.join.pitch";
+            case "leave-sound-pitch":
+            case "leave-pitch": return "sounds.leave.pitch";
+            case "effect-type":
+            case "effects-type": return "effects.type";
+            case "effects-enabled":
+            case "effects": return "effects.enabled";
+            case "message-pack":
+            case "message-packs":
+            case "pack": return "message-packs.selected";
+            case "message-style": return "messages.style";
+            default: return input;
+        }
+    }
+
+    private String friendlyConfigName(String input) {
+        if (input == null) return "";
+        String resolved = resolveConfigPath(input);
+        // Try display-names first
+        String display = plugin.getConfig().getString("display-names.config_paths." + resolved, null);
+        if (display != null && !display.isEmpty()) return display;
+        // Fall back to a human-friendly version of the path
+        String base = resolved.isEmpty() ? input : resolved;
+        String last = base.contains(".") ? base.substring(base.lastIndexOf('.') + 1) : base;
+        String pretty = last.replace("-", " ").replace("_", " ");
+        // Title-case
+        StringBuilder sb = new StringBuilder();
+        for (String word : pretty.split(" ")) {
+            if (word.isEmpty()) continue;
+            sb.append(Character.toUpperCase(word.charAt(0)))
+               .append(word.length() > 1 ? word.substring(1) : "").append(" ");
+        }
+        return sb.toString().trim();
+    }
+
     private void sendConfigHelp(CommandSender sender) {
         sender.sendMessage(ChatColor.GOLD + "══ WelcomeMat Config Help ══");
         sender.sendMessage(ChatColor.YELLOW + "➤ /wm config set <path> <value> " + 
@@ -1084,43 +1132,79 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
             ChatColor.WHITE + "- Get a config value");
         sender.sendMessage(ChatColor.YELLOW + "➤ /wm config list [path] " + 
             ChatColor.WHITE + "- List config keys");
-        sender.sendMessage(ChatColor.GRAY + "Common paths:");
-        sender.sendMessage(ChatColor.GRAY + "• sounds.join.sound");
-        sender.sendMessage(ChatColor.GRAY + "• sounds.join.volume");
-        sender.sendMessage(ChatColor.GRAY + "• sounds.leave.sound");
-        sender.sendMessage(ChatColor.GRAY + "• messages.style");
+        sender.sendMessage(ChatColor.GRAY + "Common settings:");
+        sender.sendMessage(ChatColor.GRAY + "• " + ChatColor.AQUA + "join-sound");
+        sender.sendMessage(ChatColor.GRAY + "• " + ChatColor.AQUA + "join-sound-volume");
+        sender.sendMessage(ChatColor.GRAY + "• " + ChatColor.AQUA + "leave-sound");
+        sender.sendMessage(ChatColor.GRAY + "• " + ChatColor.AQUA + "message-style");
+    }
+
+    private void handlePluginToggle(CommandSender sender, boolean enable) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(ChatColor.RED + "This command can only be used by players!");
+            return;
+        }
+        Player player = (Player) sender;
+        if (!sender.hasPermission("welcomemat.toggle")) {
+            sender.sendMessage(ChatColor.RED + "You don't have permission to toggle WelcomeMat!");
+            return;
+        }
+        if (!plugin.getConfigManager().isPlayerToggleAllowed()) {
+            sender.sendMessage(ChatColor.RED + "Players are not allowed to toggle WelcomeMat.");
+            return;
+        }
+        // permission? maybe welcomemat.toggle default true
+        plugin.getDatabaseManager().setPluginEnabled(player.getUniqueId(), enable);
+        if (enable) {
+            sender.sendMessage(ChatColor.GREEN + "WelcomeMat enabled for you!");
+            try { player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.2f); } catch (Exception ignored) {}
+        } else {
+            sender.sendMessage(ChatColor.YELLOW + "WelcomeMat disabled for you. You will no longer receive welcome messages.");
+            try { player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 0.8f); } catch (Exception ignored) {}
+        }
     }
 
     private void sendHelp(CommandSender sender) {
         LanguageManager lang = plugin.getLanguageManager();
-        sender.sendMessage(lang.getMessage("help.header"));
-        
+        sender.sendMessage(ChatColor.GOLD + "═══════ " + ChatColor.YELLOW + "WelcomeMat" + ChatColor.GOLD + " ═══════");
+        sender.sendMessage(ChatColor.GRAY + "A friendly way to roll out the welcome mat!");
+        sender.sendMessage("");
+
         if (sender instanceof Player && sender.hasPermission("welcomemat.config")) {
-            sender.sendMessage(ChatColor.GOLD + "➤ " + ChatColor.GREEN + "/wm gui " + 
-                ChatColor.GRAY + "- Open settings menu");
+            sender.sendMessage(ChatColor.AQUA + "➤ " + ChatColor.GREEN + "/wm gui " +
+                ChatColor.GRAY + "- Open the settings menu");
             sender.sendMessage("");
         }
 
         if (sender.hasPermission("welcomemat.reload")) {
-            sender.sendMessage(lang.getMessage("help.reload"));
+            sender.sendMessage(ChatColor.YELLOW + "➤ " + lang.getMessage("help.reload"));
         }
         if (sender.hasPermission("welcomemat.sound.toggle")) {
-            sender.sendMessage(lang.getMessage("help.sound"));
+            sender.sendMessage(ChatColor.YELLOW + "➤ " + lang.getMessage("help.sound"));
         }
         if (sender.hasPermission("welcomemat.animation")) {
-            sender.sendMessage(lang.getMessage("help.animation"));
+            sender.sendMessage(ChatColor.YELLOW + "➤ " + lang.getMessage("help.animation"));
         }
         if (sender.hasPermission("welcomemat.pack")) {
-            sender.sendMessage(lang.getMessage("help.pack"));
+            sender.sendMessage(ChatColor.YELLOW + "➤ " + lang.getMessage("help.pack"));
         }
         if (sender.hasPermission("welcomemat.config")) {
-            sender.sendMessage(lang.getMessage("help.config"));
-            sender.sendMessage(lang.getMessage("help.splash"));
+            sender.sendMessage(ChatColor.YELLOW + "➤ " + lang.getMessage("help.config"));
+            sender.sendMessage(ChatColor.YELLOW + "➤ " + lang.getMessage("help.splash"));
         }
         if (sender.hasPermission("welcomemat.language")) {
-            sender.sendMessage(lang.getMessage("help.language"));
+            sender.sendMessage(ChatColor.YELLOW + "➤ " + lang.getMessage("help.language"));
         }
-        sender.sendMessage(lang.getMessage("help.help"));
+        if (sender instanceof Player && sender.hasPermission("welcomemat.toggle")
+                && plugin.getConfigManager().isPlayerToggleAllowed()) {
+            sender.sendMessage(ChatColor.YELLOW + "➤ " + ChatColor.GREEN + "/wm on " +
+                ChatColor.GRAY + "- Enable WelcomeMat for yourself");
+            sender.sendMessage(ChatColor.YELLOW + "➤ " + ChatColor.RED + "/wm off " +
+                ChatColor.GRAY + "- Disable WelcomeMat for yourself");
+        }
+        sender.sendMessage("");
+        sender.sendMessage(ChatColor.GRAY + "➤ " + lang.getMessage("help.help"));
+        sender.sendMessage(ChatColor.GOLD + "═════════════════════════════════");
     }
 
     private List<String> filterCompletions(String[] options, String input) {
