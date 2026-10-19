@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class ConfigManager {
     private final WelcomeMat plugin;
     private FileConfiguration config;
-    private static final String CONFIG_VERSION = "1.3";
+    private static final String CONFIG_VERSION = "1.4";
     private static final String CONFIG_VERSION_PATH = "config-version";
     
     // Default delay values in milliseconds

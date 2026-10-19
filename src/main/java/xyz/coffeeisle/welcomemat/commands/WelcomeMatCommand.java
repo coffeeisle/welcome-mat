@@ -178,6 +178,10 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
 
     private void handlePackMode(CommandSender sender, String[] args) {
         LanguageManager lang = plugin.getLanguageManager();
+        if (!sender.hasPermission("welcomemat.pack.mode")) {
+            sender.sendMessage(lang.getMessage("errors.no_permission"));
+            return;
+        }
         if (args.length < 4) {
             sender.sendMessage(lang.getMessage("pack.mode.usage"));
             return;
@@ -216,6 +220,10 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
 
     private void handlePackCreate(CommandSender sender, String[] args) {
         LanguageManager lang = plugin.getLanguageManager();
+        if (!sender.hasPermission("welcomemat.pack.create")) {
+            sender.sendMessage(lang.getMessage("errors.no_permission"));
+            return;
+        }
         if (args.length < 3) {
             sender.sendMessage(lang.getMessage("pack.create.usage"));
             return;
@@ -724,6 +732,10 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 applyAnimationSelection(player, registry, args[2]);
                 return;
             case "test":
+                if (!player.hasPermission("welcomemat.animation.test")) {
+                    player.sendMessage(lang.getMessage("errors.no_permission"));
+                    return;
+                }
                 if (args.length < 3) {
                     player.sendMessage(lang.getMessage("effects.animation.test_usage"));
                     return;
