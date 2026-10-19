@@ -70,7 +70,7 @@ public class LanguageManager {
         for (String lang : builtIns) {
             if (messages.isConfigurationSection("languages." + lang)) continue;
             if (!defaults.isConfigurationSection(lang)) continue;
-            messages.set("languages." + lang, defaults.getConfigurationSection(lang).getValues(false));
+            messages.createSection("languages." + lang, defaults.getConfigurationSection(lang).getValues(true));
             changed = true;
         }
         if (changed) {
