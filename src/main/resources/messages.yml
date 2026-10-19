@@ -242,6 +242,14 @@ languages:
         animation: "&e/welcomemat animation &f- Choose your join animation"
         gui: "&e/welcomemat gui &f- Open settings menu"
         help: "&e/welcomemat help &f- Show this help message"
+        subtitle: "&7A friendly way to roll out the welcome mat!"
+        on: "&e/wm on &f- Enable WelcomeMat for yourself"
+        off: "&e/wm off &f- Disable WelcomeMat for yourself"
+      toggle:
+        enabled: "&aWelcomeMat enabled for you!"
+        disabled: "&eWelcomeMat disabled for you. You will no longer receive welcome messages."
+        no_permission: "&cYou don't have permission to toggle WelcomeMat!"
+        not_allowed: "&cPlayers are not allowed to toggle WelcomeMat."
       
       errors:
         players_only: "&cThis command can only be used by players!"
@@ -487,6 +495,14 @@ languages:
         animation: "&e/welcomemat animation &f- Elegir tu animación de entrada"
         gui: "&e/welcomemat gui &f- Abrir menú de configuración"
         help: "&e/welcomemat help &f- Mostrar este mensaje de ayuda"
+        subtitle: "&7¡Una forma amigable de extender la alfombra de bienvenida!"
+        on: "&e/wm on &f- Activar WelcomeMat para ti"
+        off: "&e/wm off &f- Desactivar WelcomeMat para ti"
+      toggle:
+        enabled: "&a¡WelcomeMat activado para ti!"
+        disabled: "&eWelcomeMat desactivado para ti. Ya no recibirás mensajes de bienvenida."
+        no_permission: "&c¡No tienes permiso para activar o desactivar WelcomeMat!"
+        not_allowed: "&cLos jugadores no pueden activar o desactivar WelcomeMat."
       
       errors:
         players_only: "&c¡Este comando solo puede ser usado por jugadores!"
@@ -656,6 +672,14 @@ languages:
         animation: "&e/welcomemat animation &f- Choisir votre animation"
         gui: "&e/welcomemat gui &f- Ouvrir les réglages"
         help: "&e/welcomemat help &f- Afficher cette aide"
+        subtitle: "&7Une façon conviviale de déployer le tapis d'accueil !"
+        on: "&e/wm on &f- Activer WelcomeMat pour vous"
+        off: "&e/wm off &f- Désactiver WelcomeMat pour vous"
+      toggle:
+        enabled: "&aWelcomeMat activé pour vous !"
+        disabled: "&eWelcomeMat désactivé pour vous. Vous ne recevrez plus de messages de bienvenue."
+        no_permission: "&cVous n'avez pas la permission d'activer WelcomeMat !"
+        not_allowed: "&cLes joueurs ne peuvent pas activer WelcomeMat."
       errors:
         players_only: "&cCette commande est réservée aux joueurs !"
         no_permission: "&cVous n'avez pas la permission d'utiliser cette commande !"
@@ -818,6 +842,14 @@ languages:
         animation: "&e/welcomemat animation &f- Alege animația"
         gui: "&e/welcomemat gui &f- Deschide setările"
         help: "&e/welcomemat help &f- Afișează acest ajutor"
+        subtitle: "&7O modalitate prietenoasă de a desfășura covorul de bun venit!"
+        on: "&e/wm on &f- Activează WelcomeMat pentru tine"
+        off: "&e/wm off &f- Dezactivează WelcomeMat pentru tine"
+      toggle:
+        enabled: "&aWelcomeMat activat pentru tine!"
+        disabled: "&eWelcomeMat dezactivat pentru tine. Nu vei mai primi mesaje de bun venit."
+        no_permission: "&cNu ai permisiunea de a activa WelcomeMat!"
+        not_allowed: "&cJucătorii nu pot activa WelcomeMat."
       errors:
         players_only: "&cAceastă comandă este disponibilă doar jucătorilor!"
         no_permission: "&cNu ai permisiunea de a folosi această comandă!"
@@ -980,6 +1012,14 @@ languages:
         animation: "&e/welcomemat animation &f- Animation wählen"
         gui: "&e/welcomemat gui &f- Einstellungen öffnen"
         help: "&e/welcomemat help &f- Diese Hilfe anzeigen"
+        subtitle: "&7Ein freundlicher Weg, die Willkommensmatte auszurollen!"
+        on: "&e/wm on &f- WelcomeMat für dich aktivieren"
+        off: "&e/wm off &f- WelcomeMat für dich deaktivieren"
+      toggle:
+        enabled: "&aWelcomeMat für dich aktiviert!"
+        disabled: "&eWelcomeMat für dich deaktiviert. Du erhältst keine Willkommensnachrichten mehr."
+        no_permission: "&cDu hast keine Berechtigung, WelcomeMat umzuschalten!"
+        not_allowed: "&cSpieler dürfen WelcomeMat nicht umschalten."
       errors:
         players_only: "&cDieser Befehl ist nur für Spieler!"
         no_permission: "&cDu hast keine Berechtigung für diesen Befehl!"
@@ -1142,6 +1182,14 @@ languages:
         animation: "&e/welcomemat animation &f- 选择动画"
         gui: "&e/welcomemat gui &f- 打开设置菜单"
         help: "&e/welcomemat help &f- 显示此帮助"
+        subtitle: "&7一种友好的方式来铺好欢迎地毯！"
+        on: "&e/wm on &f- 为自己开启 WelcomeMat"
+        off: "&e/wm off &f- 为自己关闭 WelcomeMat"
+      toggle:
+        enabled: "&a已为你开启 WelcomeMat！"
+        disabled: "&e已为你关闭 WelcomeMat，你将不再收到欢迎消息。"
+        no_permission: "&c你没有开关 WelcomeMat 的权限！"
+        not_allowed: "&c玩家无法开关 WelcomeMat。"
       errors:
         players_only: "&c该命令只能由玩家使用！"
         no_permission: "&c你没有使用该命令的权限！"

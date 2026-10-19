@@ -70,11 +70,11 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 break;
             case "gui":
                 if (!(sender instanceof Player)) {
-                    sender.sendMessage(ChatColor.RED + "This command can only be used by players!");
+                    sender.sendMessage(plugin.getLanguageManager().getMessage("errors.players_only"));
                     return true;
                 }
                 if (!sender.hasPermission("welcomemat.config") && !sender.hasPermission("welcomemat.gui")) {
-                    sender.sendMessage(ChatColor.RED + "You don't have permission to access the settings menu!");
+                    sender.sendMessage(plugin.getLanguageManager().getMessage("errors.no_permission"));
                     return true;
                 }
                 new SettingsGUI(plugin).openMainMenu((Player) sender);
@@ -89,7 +89,7 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
                 handlePluginToggle(sender, false);
                 break;
             default:
-                sender.sendMessage(ChatColor.RED + "Unknown command. Use /wm help for help.");
+                sender.sendMessage(plugin.getLanguageManager().getMessage("errors.unknown_command"));
         }
         return true;
     }
@@ -106,13 +106,14 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleSound(CommandSender sender) {
+        LanguageManager lang = plugin.getLanguageManager();
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be used by players!");
+            sender.sendMessage(lang.getMessage("errors.players_only"));
             return;
         }
 
         if (!sender.hasPermission("welcomemat.sound.toggle")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to toggle sounds!");
+            sender.sendMessage(lang.getMessage("sound.no-permission"));
             return;
         }
 
@@ -126,19 +127,13 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         db.setSoundPreference(uuid, newState);
 
         if (newState) {
-            sender.sendMessage(ChatColor.GREEN + "Join/Leave sounds enabled!");
+            sender.sendMessage(lang.getMessage("sound.enabled"));
             try {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
-            } catch (IllegalArgumentException e) {
-                // Fallback for older versions
-                try {
-                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
-                } catch (IllegalArgumentException ex) {
-                    // Ignore if sound doesn't exist
-                }
+            } catch (IllegalArgumentException ignored) {
             }
         } else {
-            sender.sendMessage(ChatColor.YELLOW + "Join/Leave sounds disabled!");
+            sender.sendMessage(lang.getMessage("sound.disabled"));
         }
     }
 
@@ -1145,21 +1140,21 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
             return;
         }
         Player player = (Player) sender;
+        LanguageManager lang = plugin.getLanguageManager();
         if (!sender.hasPermission("welcomemat.toggle")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to toggle WelcomeMat!");
+            sender.sendMessage(lang.getMessage("toggle.no_permission"));
             return;
         }
         if (!plugin.getConfigManager().isPlayerToggleAllowed()) {
-            sender.sendMessage(ChatColor.RED + "Players are not allowed to toggle WelcomeMat.");
+            sender.sendMessage(lang.getMessage("toggle.not_allowed"));
             return;
         }
-        // permission? maybe welcomemat.toggle default true
         plugin.getDatabaseManager().setPluginEnabled(player.getUniqueId(), enable);
         if (enable) {
-            sender.sendMessage(ChatColor.GREEN + "WelcomeMat enabled for you!");
+            sender.sendMessage(lang.getMessage("toggle.enabled"));
             try { player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.2f); } catch (Exception ignored) {}
         } else {
-            sender.sendMessage(ChatColor.YELLOW + "WelcomeMat disabled for you. You will no longer receive welcome messages.");
+            sender.sendMessage(lang.getMessage("toggle.disabled"));
             try { player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 0.8f); } catch (Exception ignored) {}
         }
     }
@@ -1167,12 +1162,11 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
     private void sendHelp(CommandSender sender) {
         LanguageManager lang = plugin.getLanguageManager();
         sender.sendMessage(ChatColor.GOLD + "═══════ " + ChatColor.YELLOW + "WelcomeMat" + ChatColor.GOLD + " ═══════");
-        sender.sendMessage(ChatColor.GRAY + "A friendly way to roll out the welcome mat!");
+        sender.sendMessage(ChatColor.GRAY + lang.getMessage("help.subtitle"));
         sender.sendMessage("");
 
-        if (sender instanceof Player && sender.hasPermission("welcomemat.config")) {
-            sender.sendMessage(ChatColor.AQUA + "➤ " + ChatColor.GREEN + "/wm gui " +
-                ChatColor.GRAY + "- Open the settings menu");
+        if (sender instanceof Player && (sender.hasPermission("welcomemat.config") || sender.hasPermission("welcomemat.gui"))) {
+            sender.sendMessage(ChatColor.AQUA + "➤ " + lang.getMessage("help.gui"));
             sender.sendMessage("");
         }
 
@@ -1197,10 +1191,8 @@ public class WelcomeMatCommand implements CommandExecutor, TabCompleter {
         }
         if (sender instanceof Player && sender.hasPermission("welcomemat.toggle")
                 && plugin.getConfigManager().isPlayerToggleAllowed()) {
-            sender.sendMessage(ChatColor.YELLOW + "➤ " + ChatColor.GREEN + "/wm on " +
-                ChatColor.GRAY + "- Enable WelcomeMat for yourself");
-            sender.sendMessage(ChatColor.YELLOW + "➤ " + ChatColor.RED + "/wm off " +
-                ChatColor.GRAY + "- Disable WelcomeMat for yourself");
+            sender.sendMessage(ChatColor.YELLOW + "➤ " + lang.getMessage("help.on"));
+            sender.sendMessage(ChatColor.YELLOW + "➤ " + lang.getMessage("help.off"));
         }
         sender.sendMessage("");
         sender.sendMessage(ChatColor.GRAY + "➤ " + lang.getMessage("help.help"));
